@@ -8,4 +8,4 @@
 Говоровский Андрей, github.com/govorovsky, govorovskij@gmail.com
 
 Подробнее о проекте можно прочесть на сайте [Технопарка] [1]
-[1]: tp.mail.ru
+[1]: http://tp.mail.ru
