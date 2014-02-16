@@ -1,4 +1,4 @@
-package templaterer;
+package templater;
 
 import freemarker.template.Configuration;
 import freemarker.template.Template;
@@ -11,7 +11,7 @@ import java.io.Writer;
 import java.util.Map;
 
 /**
- * Created by andrew on 15.02.14.
+ * Created by Andrew Govorovsky on 15.02.14 {18:51}.
  */
 public class PageGenerator {
     private static final String HTML_DIR = "templates";
