@@ -7,7 +7,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -25,6 +27,13 @@ public class Frontend extends HttpServlet {
         users.put("test", "345");
     }
 
+
+    private void sendOkResponse(HttpServletResponse resp, String resultPage, Map<String, Object> variables) throws ServletException, IOException {
+        resp.setContentType("text/html;charset=utf-8");
+        resp.setStatus(HttpServletResponse.SC_OK);
+        resp.getWriter().println(PageGenerator.getPage(resultPage, variables));
+    }
+
     @Override
     public void doGet(HttpServletRequest request,
                       HttpServletResponse response) throws ServletException, IOException {
@@ -35,7 +44,9 @@ public class Frontend extends HttpServlet {
         switch (request.getPathInfo()) {
             case "/index":
                 if (userId != null) {
+                    resultPage = "index.tpl";
                     pageVariables.put("userId", userId);
+                    sendOkResponse(response, resultPage, pageVariables);
                 } else {
                     response.sendRedirect("/auth");
                 }
@@ -43,6 +54,7 @@ public class Frontend extends HttpServlet {
 
             case "/auth":
                 resultPage = "auth.tpl";
+                sendOkResponse(response, resultPage, pageVariables);
                 break;
 
             case "/timer":
@@ -51,6 +63,7 @@ public class Frontend extends HttpServlet {
                     pageVariables.put("userId", userId);
                     pageVariables.put("refreshPeriod", "1000");
                     resultPage = "timer.tpl";
+                    sendOkResponse(response, resultPage, pageVariables);
                 } else {
                     response.sendRedirect("/auth");
                 }
@@ -62,12 +75,9 @@ public class Frontend extends HttpServlet {
                 break;
 
             default:
+                response.sendError(HttpServletResponse.SC_NOT_FOUND);
                 break;
-
         }
-        response.setContentType("text/html;charset=utf-8");
-        response.setStatus(HttpServletResponse.SC_OK);
-        response.getWriter().println(PageGenerator.getPage(resultPage, pageVariables));
     }
 
     @Override
@@ -76,6 +86,7 @@ public class Frontend extends HttpServlet {
         String login = request.getParameter("login");
         String password = request.getParameter("password");
         Map<String, Object> pageVariables = new HashMap<>();
+        String authPage = "/auth.tpl";
 
         if (users.containsKey(login)) {
             if (users.get(login).equals(password)) {
@@ -85,8 +96,6 @@ public class Frontend extends HttpServlet {
             }
         }
         pageVariables.put("errorMsg", "User or password invalid!");
-        response.setContentType("text/html;charset=utf-8");
-        response.setStatus(HttpServletResponse.SC_OK);
-        response.getWriter().println(PageGenerator.getPage("/auth.tpl", pageVariables));
+        sendOkResponse(response, authPage, pageVariables);
     }
 }

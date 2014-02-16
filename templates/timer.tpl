@@ -7,6 +7,7 @@
 <p>Client time: <span id='ClientTime'></span></p>
 <p>Server time: ${time}</p>
 <p>Your id on the server: ${userId}</p>
+You can go to <a href="/index" > main </a> or <a href="/quit"> Exit!</a>
 <div><img src="/jetty-logo-80x22.png"/>
 </div>
 </body>

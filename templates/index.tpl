@@ -6,8 +6,7 @@
 Welcome, user! Your sessionid = ${userId}
 
 <div>
-<a href="/quit"> Exit!</a>
-
+    You can go to <a href="/timer" > timer </a> or <a href="/quit"> Exit!</a>
 </div>
 <div><img src="/jetty-logo-80x22.png"/>
 </div>
