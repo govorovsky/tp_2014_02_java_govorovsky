@@ -36,8 +36,7 @@ public class Main {
         rewriteHandler.addRule(rule);
 
         HandlerList handlers = new HandlerList();
-        handlers.setHandlers(new Handler[]{rewriteHandler, resource_handler, context}); /* The resource handler is passed the request first and looks for a matching file in the local directory to serve.
-        If it does not find a file, the request passes to the default handler */
+        handlers.setHandlers(new Handler[]{rewriteHandler, resource_handler, context}); /* If the resource handler does not find a file, the request passes to the default handler */
         server.setHandler(handlers);
 
         server.start();
