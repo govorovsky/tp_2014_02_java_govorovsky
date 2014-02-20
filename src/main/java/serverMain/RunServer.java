@@ -1,4 +1,4 @@
-package Main;
+package serverMain;
 
 import frontend.Frontend;
 import org.eclipse.jetty.rewrite.handler.RedirectRegexRule;
@@ -15,7 +15,7 @@ import javax.servlet.Servlet;
 /**
  * Created by andrew on 15.02.14.
  */
-public class Main {
+public class RunServer {
     public static void main(String[] args) throws Exception {
         Servlet frontend = new Frontend();
         Server server = new Server(8080);
@@ -23,8 +23,8 @@ public class Main {
         context.addServlet(new ServletHolder(frontend), "/*"); /* servlet for all URL */
 
         ResourceHandler resource_handler = new ResourceHandler();
-        resource_handler.setDirectoriesListed(true);
-        resource_handler.setResourceBase("static"); /* Dir with static files */
+        resource_handler.setDirectoriesListed(false);
+        resource_handler.setResourceBase("static");
 
         RewriteHandler rewriteHandler = new RewriteHandler();
         rewriteHandler.setRewriteRequestURI(true);
@@ -36,7 +36,7 @@ public class Main {
         rewriteHandler.addRule(rule);
 
         HandlerList handlers = new HandlerList();
-        handlers.setHandlers(new Handler[]{rewriteHandler, resource_handler, context}); /* If the resource handler does not find a file, the request passes to the default handler */
+        handlers.setHandlers(new Handler[]{rewriteHandler, resource_handler, context});
         server.setHandler(handlers);
 
         server.start();

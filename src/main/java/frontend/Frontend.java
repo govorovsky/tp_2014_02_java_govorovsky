@@ -19,14 +19,12 @@ public class Frontend extends HttpServlet {
     private static final Map<String, String> users;
     private AtomicLong userIdGenerator = new AtomicLong(0);
 
-
     /* hardcoded users */
     static {
         users = new HashMap<>();
         users.put("andrew", "123");
         users.put("test", "345");
     }
-
 
     private void sendOkResponse(HttpServletResponse resp, String resultPage, Map<String, Object> variables) throws ServletException, IOException {
         resp.setContentType("text/html;charset=utf-8");
@@ -38,7 +36,7 @@ public class Frontend extends HttpServlet {
     public void doGet(HttpServletRequest request,
                       HttpServletResponse response) throws ServletException, IOException {
         Map<String, Object> pageVariables = new HashMap<>();
-        String resultPage = "index.tpl";
+        String resultPage;
         Long userId = (Long) request.getSession().getAttribute("userId");
 
         switch (request.getPathInfo()) {
