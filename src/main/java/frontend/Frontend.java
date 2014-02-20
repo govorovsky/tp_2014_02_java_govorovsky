@@ -16,14 +16,14 @@ import java.util.concurrent.atomic.AtomicLong;
  * Created by andrew on 15.02.14.
  */
 public class Frontend extends HttpServlet {
-    private static final Map<String, String> users;
+    private static final Map<String, String> USERS;
     private AtomicLong userIdGenerator = new AtomicLong(0);
 
     /* hardcoded users */
     static {
-        users = new HashMap<>();
-        users.put("andrew", "123");
-        users.put("test", "345");
+        USERS = new HashMap<>();
+        USERS.put("andrew", "123");
+        USERS.put("test", "345");
     }
 
     private void sendOkResponse(HttpServletResponse resp, String resultPage, Map<String, Object> variables) throws ServletException, IOException {
@@ -86,8 +86,8 @@ public class Frontend extends HttpServlet {
         Map<String, Object> pageVariables = new HashMap<>();
         String authPage = "/auth.tpl";
 
-        if (users.containsKey(login)) {
-            if (users.get(login).equals(password)) {
+        if (USERS.containsKey(login)) {
+            if (USERS.get(login).equals(password)) {
                 request.getSession().setAttribute("userId", userIdGenerator.getAndIncrement());
                 response.sendRedirect("/timer");
                 return;
