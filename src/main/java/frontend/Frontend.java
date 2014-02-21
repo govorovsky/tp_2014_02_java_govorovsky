@@ -76,6 +76,7 @@ public class Frontend extends HttpServlet {
                 response.sendError(HttpServletResponse.SC_NOT_FOUND);
                 break;
         }
+
     }
 
     @Override
@@ -86,12 +87,10 @@ public class Frontend extends HttpServlet {
         Map<String, Object> pageVariables = new HashMap<>();
         String authPage = "/auth.tpl";
 
-        if (USERS.containsKey(login)) {
-            if (USERS.get(login).equals(password)) {
-                request.getSession().setAttribute("userId", userIdGenerator.getAndIncrement());
-                response.sendRedirect("/timer");
-                return;
-            }
+        if (USERS.containsKey(login) && USERS.get(login).equals(password)) {
+            request.getSession().setAttribute("userId", userIdGenerator.getAndIncrement());
+            response.sendRedirect("/timer");
+            return;
         }
         pageVariables.put("errorMsg", "User or password invalid!");
         sendOkResponse(response, authPage, pageVariables);
