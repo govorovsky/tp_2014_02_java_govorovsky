@@ -1,5 +1,6 @@
 package frontend;
 
+import db.AccountService;
 import templater.PageGenerator;
 
 import javax.servlet.ServletException;
@@ -15,15 +16,16 @@ import java.util.concurrent.atomic.AtomicLong;
 /**
  * Created by andrew on 15.02.14.
  */
+
 public class Frontend extends HttpServlet {
-    private static final Map<String, String> USERS;
     private AtomicLong userIdGenerator = new AtomicLong(0);
+    public AccountService ac;
 
     /* hardcoded users */
-    static {
-        USERS = new HashMap<>();
-        USERS.put("andrew", "123");
-        USERS.put("test", "345");
+
+    public Frontend() {
+        ac = new AccountService();
+        ac.addUser("test","test");
     }
 
     private void sendOkResponse(HttpServletResponse resp, String resultPage, Map<String, Object> variables) throws ServletException, IOException {
@@ -87,7 +89,7 @@ public class Frontend extends HttpServlet {
         Map<String, Object> pageVariables = new HashMap<>();
         String authPage = "/auth.tpl";
 
-        if (USERS.containsKey(login) && USERS.get(login).equals(password)) {
+        if (ac.authenticate(login, password)) {
             request.getSession().setAttribute("userId", userIdGenerator.getAndIncrement());
             response.sendRedirect("/timer");
             return;

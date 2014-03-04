@@ -23,7 +23,6 @@ public class RunServer {
         context.addServlet(new ServletHolder(frontend), "/*"); /* servlet for all URL */
 
         ResourceHandler resource_handler = new ResourceHandler();
-        resource_handler.setDirectoriesListed(false);
         resource_handler.setResourceBase("static");
 
         RewriteHandler rewriteHandler = new RewriteHandler();
