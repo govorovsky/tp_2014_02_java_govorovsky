@@ -3,10 +3,10 @@
     <title>hello</title>
 </head>
 <body>
-Welcome, Anonymous!
+Welcome, user! Your sessionid = ${userId}
 
 <div>
-    You can <a href="/reg" > register </a> or <a href="/auth"> login!</a>
+    You can go to <a href="/timer" > timer </a> or <a href="/quit"> Exit!</a>
 </div>
 <div><img src="/jetty-logo-80x22.png"/>
 </div>

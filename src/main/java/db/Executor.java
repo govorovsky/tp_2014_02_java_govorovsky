@@ -6,7 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
- * Created by Andrew Govorovsky on 03.03.14 {14:58}.
+ * Created by Andrew Govorovsky on 03.03.14 {14:58}
  */
 public class Executor {
     public static <T> T executeQuery(Connection connection, ExecHandler<T> handler, String query, Object... vars) throws SQLException {
@@ -26,10 +26,8 @@ public class Executor {
         PreparedStatement stm = connection.prepareStatement(query);
 
         for (int i = 0; i < vars.length; i++) {
-            System.out.print(vars[i]);
             stm.setObject(i + 1, vars[i]);
         }
-
         int affected = stm.executeUpdate();
         stm.close();
         return affected;
