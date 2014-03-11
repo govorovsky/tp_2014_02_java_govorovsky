@@ -1,6 +1,6 @@
 <html>
 <head>
-    <title>hello</title>
+    <title>Main Page</title>
 </head>
 <body>
 Welcome, Anonymous!

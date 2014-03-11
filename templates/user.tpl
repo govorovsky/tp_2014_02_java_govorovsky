@@ -1,6 +1,6 @@
 <html>
 <head>
-    <title>hello</title>
+    <title>User page</title>
 </head>
 <body>
 Welcome, user! Your sessionid = ${userId}

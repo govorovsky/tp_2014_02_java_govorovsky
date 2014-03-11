@@ -1,6 +1,6 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<title>Timer</title>
+<title>Timer page</title>
 <script src="/refresher.js"></script>
 </head>
 <body onload='setInterval(function(){refresh()}, ${refreshPeriod} ); setClientTime();'>

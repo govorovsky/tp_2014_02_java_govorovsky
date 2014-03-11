@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title></title>
+    <title>Auth Page</title>
 </head>
 <body>
 <#if errorMsg??>
-    <p style="color:red;">${errorMsg}</p>
+    <p id="error" style="color:red;">${errorMsg}</p>
 </#if>
 
 <form method="post">

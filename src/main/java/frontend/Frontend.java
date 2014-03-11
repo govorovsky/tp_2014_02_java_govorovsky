@@ -13,7 +13,6 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -88,6 +87,9 @@ public class Frontend extends HttpServlet {
                 break;
             case Pages.REG_PAGE:
                 doRegister(request, response);
+                break;
+            default:
+                response.sendRedirect(Pages.MAIN_PAGE);
                 break;
         }
     }
