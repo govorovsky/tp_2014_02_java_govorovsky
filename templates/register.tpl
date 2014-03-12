@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Registration page</title>
+    <title>Registration Page</title>
 </head>
 <body>
 <#if errorMsg??>
