@@ -151,9 +151,9 @@ public class FrontendTest {
 
     @Test
     public void testDoLogout() throws Exception {
-       authorizedTrue();
+        authorizedTrue();
         when(request.getPathInfo()).thenReturn(Pages.QUIT_PAGE);
-        frontend.doGet(request,response);
+        frontend.doGet(request, response);
         verify(response, atLeastOnce()).sendRedirect(Pages.MAIN_PAGE);
         verify(session, atLeastOnce()).invalidate();
     }

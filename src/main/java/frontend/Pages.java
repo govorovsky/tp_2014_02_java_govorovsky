@@ -4,7 +4,6 @@ package frontend;
  * Created by Andrew Govorovsky on 06.03.14
  */
 public final class Pages {
-
     private Pages() {}
     public static final String INDEX_PAGE = "/" ;
     public static final String AUTH_PAGE = "/auth";
