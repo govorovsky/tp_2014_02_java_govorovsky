@@ -10,8 +10,12 @@ import org.junit.runner.notification.Failure;
 public class TestRunner {
     public static void main(String[] args) {
         Result result = JUnitCore.runClasses(AccountServiceTest.class, FrontendTest.class);
-        for (Failure failure : result.getFailures()) {
-            System.out.println("Failed test:" + failure.toString());
+        if (result.wasSuccessful()) {
+            System.out.println("All tests passed successful");
+        } else {
+            for (Failure failure : result.getFailures()) {
+                System.out.println("Failed test:" + failure.toString());
+            }
         }
     }
 }
