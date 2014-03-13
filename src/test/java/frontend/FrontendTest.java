@@ -70,7 +70,6 @@ public class FrontendTest {
         authorizedTrue();
         when(request.getPathInfo()).thenReturn(Pages.MAIN_PAGE);
         frontend.doGet(request, response);
-        System.out.print(stringWriter.toString());
         Assert.assertTrue(stringWriter.toString().contains("User Page"));
     }
 
