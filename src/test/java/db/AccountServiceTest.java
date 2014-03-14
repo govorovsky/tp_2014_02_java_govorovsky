@@ -5,7 +5,7 @@ import exceptions.EmptyDataException;
 import exceptions.ExceptionMessages;
 import junit.framework.Assert;
 import org.junit.After;
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -53,8 +53,8 @@ public class AccountServiceTest {
         }
     }
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeClass
+    public static void setUp() throws Exception {
         when(request.getSession()).thenReturn(session);
     }
 

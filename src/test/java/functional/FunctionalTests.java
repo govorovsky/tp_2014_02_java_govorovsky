@@ -3,10 +3,7 @@ package functional;
 import com.sun.istack.internal.NotNull;
 import db.AccountService;
 import db.AccountServiceImpl;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -27,18 +24,18 @@ import static util.StringGenerator.getRandomString;
  */
 public class FunctionalTests {
 
-    private GServer gServer;
-    private WebDriver driver;
-    private AccountService accountService;
-    private HttpServletRequest request = mock(HttpServletRequest.class);
+    private static GServer gServer;
+    private static WebDriver driver;
+    private static AccountService accountService;
+    private static HttpServletRequest request = mock(HttpServletRequest.class);
     private static final HttpSession session = mock(HttpSession.class);
 
     private static final String TEST_USER = getRandomString(7);
     private static final String TEST_PASSWORD = getRandomString(7);
 
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeClass
+    public static void setUp() throws Exception {
         gServer = new GServer(8080);
         gServer.start();
         driver = new HtmlUnitDriver();
@@ -48,12 +45,21 @@ public class FunctionalTests {
         when(request.getParameter("password")).thenReturn(TEST_PASSWORD);
 
         accountService = new AccountServiceImpl();
+    }
+
+    @Before
+    public void registerTestUser() throws Exception {
         accountService.register(request);
     }
+
 
     @After
     public void tearDown() throws Exception {
         deleteTestUser();
+    }
+
+    @AfterClass
+    public static void stopServ() throws Exception {
         gServer.stop();
         gServer.join();
         driver.quit();
