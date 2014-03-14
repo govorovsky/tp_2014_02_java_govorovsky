@@ -17,19 +17,26 @@ import javax.servlet.Servlet;
  * Created by Andrew Govorovsky on 15.02.14
  */
 public class GServer {
-    Server server;
+    private Server server;
     private int port;
 
     public GServer(int port) {
         this.port = port;
+        server = new Server(port);
+        server.setHandler(initHandlers());
     }
 
 
-    private void start() throws Exception {
-        server = new Server(port);
-        server.setHandler(initHandlers());
+    public void start() throws Exception {
         server.start();
+    }
+
+    public void join() throws Exception {
         server.join();
+    }
+
+    public void stop() throws Exception {
+        server.stop();
     }
 
 

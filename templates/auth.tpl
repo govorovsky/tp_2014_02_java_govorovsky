@@ -9,8 +9,8 @@
 </#if>
 
 <form method="post">
-    <label for=login title="Username: ">
-        <input id="login" type="text" name="username"/>
+    <label for=username title="Username: ">
+        <input id="username" type="text" name="username"/>
     </label>
     <br />
     <label for="password" title="Password: ">

@@ -9,17 +9,17 @@
 </#if>
 
 <form method="post">
-    <label for=login title="Username: ">
-        <input id="login" type="text" name="username"/>
+    <label for=username title="Username: ">
+        <input id="username" type="text" name="username"/>
     </label>
-    <br />
+    <br/>
     <label for="password" title="Password: ">
         <input id="password" type="text" name="password"/>
     </label>
-    <input type="submit" value="Register!" />
+    <input type="submit" value="Register!"/>
 </form>
 <div>
-<img src="/jetty-logo-80x22.png"/>
+    <img src="/jetty-logo-80x22.png"/>
 </div>
 </body>
 </html>
