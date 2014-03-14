@@ -1,6 +1,8 @@
 package functional;
 
 import com.sun.istack.internal.NotNull;
+import db.AccountService;
+import db.AccountServiceImpl;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -13,6 +15,13 @@ import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import serverMain.GServer;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static util.StringGenerator.getRandomString;
+
 /**
  * Created by Andrew Govorovsky on 14.03.14
  */
@@ -20,6 +29,12 @@ public class FunctionalTests {
 
     private GServer gServer;
     private WebDriver driver;
+    private AccountService accountService;
+    private HttpServletRequest request = mock(HttpServletRequest.class);
+    private static final HttpSession session = mock(HttpSession.class);
+
+    private static final String TEST_USER = getRandomString(7);
+    private static final String TEST_PASSWORD = getRandomString(7);
 
 
     @Before
@@ -27,22 +42,39 @@ public class FunctionalTests {
         gServer = new GServer(8080);
         gServer.start();
         driver = new HtmlUnitDriver();
+
+        when(request.getSession()).thenReturn(session);
+        when(request.getParameter("username")).thenReturn(TEST_USER);
+        when(request.getParameter("password")).thenReturn(TEST_PASSWORD);
+
+        accountService = new AccountServiceImpl();
+        accountService.register(request);
     }
 
     @After
     public void tearDown() throws Exception {
+        deleteTestUser();
         gServer.stop();
         gServer.join();
         driver.quit();
     }
 
-    @Test
-    public void testAuth() {
+
+    private void deleteTestUser() {
+        try {
+            accountService.delete(TEST_USER);
+        } catch (Exception e) {
+
+        }
+    }
+
+
+    public boolean Auth(String username, String password) {
         driver.get("http://localhost:8080/auth");
         WebElement element = driver.findElement(By.name("username"));
-        element.sendKeys("test");
+        element.sendKeys(username);
         element = driver.findElement(By.name("password"));
-        element.sendKeys("test");
+        element.sendKeys(password);
         element.submit();
         boolean result;
         try {
@@ -57,6 +89,17 @@ public class FunctionalTests {
         } catch (Exception e) {
             result = false;
         }
-        Assert.assertTrue(result);
+        return result;
+    }
+
+    @Test
+    public void testAuthSuccess() {
+        Assert.assertTrue(Auth(TEST_USER, TEST_PASSWORD));
+    }
+
+    @Test
+    public void testAuthFail() {
+        deleteTestUser();
+        Assert.assertFalse(Auth(TEST_USER, TEST_PASSWORD));
     }
 }

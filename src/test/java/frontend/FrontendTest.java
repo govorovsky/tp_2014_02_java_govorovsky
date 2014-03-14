@@ -21,8 +21,8 @@ import static util.StringGenerator.getRandomString;
  * Created by Andrew Govorovsky on 08.03.14
  */
 public class FrontendTest {
-    private Frontend frontend;
-    private StringWriter stringWriter;
+    private Frontend frontend = new Frontend(accountService);
+    private StringWriter stringWriter = new StringWriter();
 
     private static final HttpServletRequest request = mock(HttpServletRequest.class);
     private static final HttpServletResponse response = mock(HttpServletResponse.class);
@@ -32,6 +32,15 @@ public class FrontendTest {
     private static final String TEST_USER = getRandomString(7);
     private static final String TEST_PASSWORD = getRandomString(7);
 
+    public FrontendTest() {
+        try {
+            when(response.getWriter()).thenReturn(new PrintWriter(stringWriter));
+            when(request.getSession()).thenReturn(session);
+        } catch (Exception e) {
+
+        }
+    }
+
 
     private void authorized(boolean isAuthorized, String destination) {
         when(request.getPathInfo()).thenReturn(destination);
@@ -39,11 +48,11 @@ public class FrontendTest {
     }
 
     @Before
-    public void setUp() throws Exception {
-        frontend = new Frontend(accountService);
-        stringWriter = new StringWriter();
-        when(response.getWriter()).thenReturn(new PrintWriter(stringWriter));
-        when(request.getSession()).thenReturn(session);
+    public void setUp() {
+    }
+
+    @After
+    public void tearDown() throws Exception {
     }
 
 
@@ -152,9 +161,6 @@ public class FrontendTest {
         verify(accountService, atLeastOnce()).logout(session);
     }
 
-    @After
-    public void tearDown() throws Exception {
-    }
 
 }
 

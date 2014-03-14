@@ -21,7 +21,7 @@ import static util.StringGenerator.getRandomString;
  * Created by Andrew Govorovsky on 12.03.14
  */
 public class AccountServiceTest {
-    private AccountServiceImpl ac;
+    private AccountServiceImpl ac = new AccountServiceImpl();
 
     private static final HttpServletRequest request = mock(HttpServletRequest.class);
     private static final HttpSession session = mock(HttpSession.class);
@@ -45,7 +45,7 @@ public class AccountServiceTest {
     }
 
 
-    private void clean() {
+    private void deleteTestUser() {
         try {
             ac.delete(TEST_USER);
         } catch (Exception e) {
@@ -55,19 +55,17 @@ public class AccountServiceTest {
 
     @Before
     public void setUp() throws Exception {
-        ac = new AccountServiceImpl();
         when(request.getSession()).thenReturn(session);
     }
 
     @After
     public void tearDown() throws Exception {
-
+        deleteTestUser();
     }
 
     @Test
     public void testRegisterSuccess() throws Exception {
         authorizationData(false, true);
-        clean();
         boolean success = true;
         try {
             ac.register(request);
@@ -81,7 +79,6 @@ public class AccountServiceTest {
     @Test
     public void testRegisterDuplicationName() throws Exception {
         authorizationData(false, true);
-        clean();
         ac.register(request);
         exp.expect(AccountServiceException.class);
         exp.expectMessage(ExceptionMessages.USER_ALREADY_EXISTS);
@@ -92,7 +89,6 @@ public class AccountServiceTest {
     @Test
     public void testAuthenticateSuccess() throws Exception {
         authorizationData(false, true);
-        clean();
         boolean success = true;
         ac.register(request);
         try {
@@ -106,7 +102,6 @@ public class AccountServiceTest {
     @Test
     public void testAuthenticateFail() throws Exception {
         authorizationData(false, true);
-        clean();
         ac.register(request);
         authorizationData(false, false);
         exp.expect(AccountServiceException.class);
@@ -117,7 +112,6 @@ public class AccountServiceTest {
 
     @Test
     public void testCheckLoginPasswordFail() throws Exception {
-        clean();
         authorizationData(true, true);
         exp.expect(EmptyDataException.class);
         exp.expectMessage(ExceptionMessages.EMPTY_DATA);
@@ -127,7 +121,6 @@ public class AccountServiceTest {
     @Test
     public void testDeleteSuccess() throws Exception {
         authorizationData(false, true);
-        clean();
         boolean success = true;
         ac.register(request);
         try {
@@ -141,7 +134,6 @@ public class AccountServiceTest {
     @Test
     public void testDeleteFail() throws Exception {
         authorizationData(false, true);
-        clean();
         boolean success = true;
         ac.register(request);
         try {
