@@ -6,22 +6,57 @@ import exceptions.ExceptionMessages;
 import junit.framework.Assert;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static util.StringGenerator.getRandomString;
 
 /**
  * Created by Andrew Govorovsky on 12.03.14
  */
 public class AccountServiceTest {
-    private AccountService ac;
+    private AccountServiceImpl ac;
 
-    private static final String TEST_LOGIN = getRandomString(7);
-    private static final String TEST_PASS = getRandomString(7);
+    private static final HttpServletRequest request = mock(HttpServletRequest.class);
+    private static final HttpSession session = mock(HttpSession.class);
+
+    private static final String TEST_USER = getRandomString(9);
+    private static final String TEST_PASSWORD = getRandomString(9);
+
+
+    @Rule
+    public final ExpectedException exp = ExpectedException.none();
+
+
+    private void authorizationData(boolean isEmpty, boolean isRight) {
+        if (isEmpty) {
+            when(request.getParameter("username")).thenReturn("");
+            when(request.getParameter("password")).thenReturn("");
+        } else {
+            when(request.getParameter("username")).thenReturn(TEST_USER);
+            when(request.getParameter("password")).thenReturn(isRight ? TEST_PASSWORD : TEST_PASSWORD.concat("32132"));
+        }
+    }
+
+
+    private void clean() {
+        try {
+            ac.delete(TEST_USER);
+        } catch (Exception e) {
+
+        }
+    }
 
     @Before
     public void setUp() throws Exception {
-        ac = new AccountService();
+        ac = new AccountServiceImpl();
+        when(request.getSession()).thenReturn(session);
     }
 
     @After
@@ -31,85 +66,72 @@ public class AccountServiceTest {
 
     @Test
     public void testRegisterSuccess() throws Exception {
+        authorizationData(false, true);
+        clean();
         boolean success = true;
         try {
-            ac.register(TEST_LOGIN, TEST_PASS);
-        } catch (AccountServiceException e) {
+            ac.register(request);
+        } catch (AccountServiceException | EmptyDataException e) {
             success = false;
         }
         Assert.assertTrue(success);
-        ac.delete(TEST_LOGIN);
     }
+
 
     @Test
     public void testRegisterDuplicationName() throws Exception {
-        try {
-            ac.register(TEST_LOGIN, TEST_PASS);
-            ac.register(TEST_LOGIN, TEST_PASS);
-        } catch (AccountServiceException e) {
-            Assert.assertTrue(e.getMessage().equals(ExceptionMessages.USER_ALREADY_EXISTS));
-        }
-        ac.delete(TEST_LOGIN);
+        authorizationData(false, true);
+        clean();
+        ac.register(request);
+        exp.expect(AccountServiceException.class);
+        exp.expectMessage(ExceptionMessages.USER_ALREADY_EXISTS);
+        ac.register(request);
     }
 
 
     @Test
     public void testAuthenticateSuccess() throws Exception {
+        authorizationData(false, true);
+        clean();
         boolean success = true;
-        ac.register(TEST_LOGIN, TEST_PASS);
+        ac.register(request);
         try {
-            ac.authenticate(TEST_LOGIN, TEST_PASS);
-        } catch (AccountServiceException e) {
+            ac.authenticate(request);
+        } catch (AccountServiceException | EmptyDataException e) {
             success = false;
         }
-        ac.delete(TEST_LOGIN);
         Assert.assertTrue(success);
     }
 
     @Test
     public void testAuthenticateFail() throws Exception {
-        boolean success = true;
-        ac.register(TEST_LOGIN, TEST_PASS);
-        try {
-            ac.authenticate(TEST_LOGIN, TEST_PASS.concat("1337"));
-        } catch (AccountServiceException e) {
-            Assert.assertTrue(e.getMessage().equals(ExceptionMessages.FAILED_AUTH));
-            success = false;
-        }
-        ac.delete(TEST_LOGIN);
-        Assert.assertFalse(success);
+        authorizationData(false, true);
+        clean();
+        ac.register(request);
+        authorizationData(false, false);
+        exp.expect(AccountServiceException.class);
+        exp.expectMessage(ExceptionMessages.FAILED_AUTH);
+        ac.authenticate(request);
     }
 
-
-    @Test
-    public void testCheckLoginPassword() throws Exception {
-        boolean success = true;
-        try {
-            ac.checkLoginPassword(getRandomString(4), getRandomString(4));
-        } catch (EmptyDataException e) {
-            success = false;
-        }
-        Assert.assertTrue(success);
-    }
 
     @Test
     public void testCheckLoginPasswordFail() throws Exception {
-        boolean success = true;
-        try {
-            ac.checkLoginPassword("", "");
-        } catch (EmptyDataException e) {
-            success = false;
-            Assert.assertTrue(e.getMessage().equals(ExceptionMessages.EMPTY_DATA));
-        }
-        Assert.assertFalse(success);
+        clean();
+        authorizationData(true, true);
+        exp.expect(EmptyDataException.class);
+        exp.expectMessage(ExceptionMessages.EMPTY_DATA);
+        ac.authenticate(request);
     }
 
     @Test
     public void testDeleteSuccess() throws Exception {
+        authorizationData(false, true);
+        clean();
         boolean success = true;
-        ac.register(TEST_LOGIN, TEST_PASS);
+        ac.register(request);
         try {
-            ac.delete(TEST_LOGIN);
+            ac.delete(TEST_USER);
         } catch (AccountServiceException e) {
             success = false;
         }
@@ -118,10 +140,12 @@ public class AccountServiceTest {
 
     @Test
     public void testDeleteFail() throws Exception {
+        authorizationData(false, true);
+        clean();
         boolean success = true;
-        ac.register(TEST_LOGIN, TEST_PASS);
+        ac.register(request);
         try {
-            ac.delete(TEST_LOGIN.concat("1337"));
+            ac.delete(TEST_USER.concat("1337"));
         } catch (AccountServiceException e) {
             success = false;
             Assert.assertTrue(e.getMessage().equals(ExceptionMessages.NO_SUCH_USER_FOUND));

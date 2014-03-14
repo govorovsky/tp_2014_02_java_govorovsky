@@ -10,7 +10,7 @@
 
 <form method="post">
     <label for=login title="Username: ">
-        <input id="login" type="text" name="login"/>
+        <input id="login" type="text" name="username"/>
     </label>
     <br />
     <label for="password" title="Password: ">

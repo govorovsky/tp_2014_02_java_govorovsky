@@ -1,5 +1,6 @@
 package serverMain;
 
+import db.AccountServiceImpl;
 import frontend.Frontend;
 import org.eclipse.jetty.rewrite.handler.RedirectRegexRule;
 import org.eclipse.jetty.rewrite.handler.RewriteHandler;
@@ -24,7 +25,7 @@ public class GServer {
     }
 
 
-    public void start() throws Exception {
+    private void start() throws Exception {
         server = new Server(port);
         server.setHandler(initHandlers());
         server.start();
@@ -33,7 +34,7 @@ public class GServer {
 
 
     private HandlerList initHandlers() {
-        Servlet frontend = new Frontend();
+        Servlet frontend = new Frontend(new AccountServiceImpl());
         ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
         context.addServlet(new ServletHolder(frontend), "/*"); /* servlet for all URL */
 
@@ -57,7 +58,5 @@ public class GServer {
     public static void main(String[] args) throws Exception {
         GServer gserver = new GServer(8080);
         gserver.start();
-
     }
-
 }

@@ -9,21 +9,20 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Created by Andrew Govorovsky on 15.02.14
  */
 public class Frontend extends HttpServlet {
-    private AtomicLong userIdGenerator = new AtomicLong(0);
-    public AccountService ac;
+    private AccountService ac;
 
-    public Frontend() {
-        ac = new AccountService();
+    public Frontend(AccountService ac) {
+        this.ac = ac;
     }
 
     private void sendResponse(HttpServletResponse resp, String resultPage, Map<String, Object> variables) throws ServletException, IOException {
@@ -36,7 +35,8 @@ public class Frontend extends HttpServlet {
     public void doGet(HttpServletRequest request,
                       HttpServletResponse response) throws ServletException, IOException {
         Map<String, Object> pageVariables = new HashMap<>();
-        Long userId = (Long) request.getSession().getAttribute("userId");
+        HttpSession userSession = request.getSession();
+        Long userId = (Long) userSession.getAttribute("userId");
         switch (request.getPathInfo()) {
             case Pages.MAIN_PAGE:
                 if (userId != null) {
@@ -67,7 +67,7 @@ public class Frontend extends HttpServlet {
                 break;
 
             case Pages.QUIT_PAGE:
-                request.getSession().invalidate();
+                ac.logout(userSession);
                 response.sendRedirect(Pages.MAIN_PAGE);
                 break;
 
@@ -95,14 +95,9 @@ public class Frontend extends HttpServlet {
     }
 
     private void doAuthenticate(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String login = request.getParameter("login");
-        String password = request.getParameter("password");
         Map<String, Object> pageVariables = new HashMap<>();
-
         try {
-            ac.checkLoginPassword(login, password);
-            ac.authenticate(login, password);
-            request.getSession().setAttribute("userId", userIdGenerator.getAndIncrement());
+            ac.authenticate(request);
             response.sendRedirect(Pages.TIMER_PAGE);
         } catch (EmptyDataException | AccountServiceException e) {
             pageVariables.put("errorMsg", e.getMessage());
@@ -111,14 +106,9 @@ public class Frontend extends HttpServlet {
     }
 
     private void doRegister(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String login = request.getParameter("login");
-        String password = request.getParameter("password");
         Map<String, Object> pageVariables = new HashMap<>();
-
         try {
-            ac.checkLoginPassword(login, password);
-            ac.register(login, password);
-            request.getSession().setAttribute("userId", userIdGenerator.getAndIncrement());
+            ac.register(request);
             response.sendRedirect(Pages.TIMER_PAGE);
         } catch (EmptyDataException | AccountServiceException e) {
             pageVariables.put("errorMsg", e.getMessage());
