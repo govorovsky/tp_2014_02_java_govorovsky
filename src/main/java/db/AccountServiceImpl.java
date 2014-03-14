@@ -31,9 +31,10 @@ public class AccountServiceImpl implements AccountService {
         try {
             String username = request.getParameter("username");
             String password = request.getParameter("password");
-            checkLoginPassword(username,password);
+            checkLoginPassword(username, password);
             if (dao.getUser(username) != null) throw new AccountServiceException(ExceptionMessages.USER_ALREADY_EXISTS);
-            if (!dao.saveUser(new UserDataSet(username, password))) throw new AccountServiceException(ExceptionMessages.SQL_ERROR);
+            if (!dao.saveUser(new UserDataSet(username, password)))
+                throw new AccountServiceException(ExceptionMessages.SQL_ERROR);
             request.getSession().setAttribute("userId", userIdGenerator.getAndIncrement());
         } catch (SQLException e) {
             e.printStackTrace();
@@ -57,7 +58,7 @@ public class AccountServiceImpl implements AccountService {
         try {
             String username = request.getParameter("username");
             String password = request.getParameter("password");
-            checkLoginPassword(username,password);
+            checkLoginPassword(username, password);
             UserDataSet user = dao.getUser(username);
             if (user == null) throw new AccountServiceException(ExceptionMessages.NO_SUCH_USER_FOUND);
             if (!user.getPassword().equals(password)) throw new AccountServiceException(ExceptionMessages.FAILED_AUTH);
