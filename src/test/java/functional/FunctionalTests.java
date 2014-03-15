@@ -36,7 +36,7 @@ public class FunctionalTests {
 
     @BeforeClass
     public static void setUp() throws Exception {
-        gServer = new GServer(8080);
+        gServer = new GServer(8090);
         gServer.start();
         driver = new HtmlUnitDriver();
 
@@ -49,7 +49,7 @@ public class FunctionalTests {
 
     @Before
     public void registerTestUser() throws Exception {
-        accountService.register(request);
+        accountService.register(TEST_USER, TEST_PASSWORD);
     }
 
 
@@ -76,7 +76,7 @@ public class FunctionalTests {
 
 
     public boolean Auth(String username, String password) {
-        driver.get("http://localhost:8080/auth");
+        driver.get("http://localhost:8090/auth");
         WebElement element = driver.findElement(By.name("username"));
         element.sendKeys(username);
         element = driver.findElement(By.name("password"));

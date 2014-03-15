@@ -10,40 +10,19 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static util.StringGenerator.getRandomString;
 
 /**
  * Created by Andrew Govorovsky on 12.03.14
  */
 public class AccountServiceTest {
-    private AccountServiceImpl ac = new AccountServiceImpl();
-
-    private static final HttpServletRequest request = mock(HttpServletRequest.class);
-    private static final HttpSession session = mock(HttpSession.class);
+    private AccountService ac = new AccountServiceImpl();
 
     private static final String TEST_USER = getRandomString(9);
     private static final String TEST_PASSWORD = getRandomString(9);
 
-
     @Rule
     public final ExpectedException exp = ExpectedException.none();
-
-
-    private void authorizationData(boolean isEmpty, boolean isRight) {
-        if (isEmpty) {
-            when(request.getParameter("username")).thenReturn("");
-            when(request.getParameter("password")).thenReturn("");
-        } else {
-            when(request.getParameter("username")).thenReturn(TEST_USER);
-            when(request.getParameter("password")).thenReturn(isRight ? TEST_PASSWORD : TEST_PASSWORD.concat("32132"));
-        }
-    }
-
 
     private void deleteTestUser() {
         try {
@@ -55,7 +34,6 @@ public class AccountServiceTest {
 
     @BeforeClass
     public static void setUp() throws Exception {
-        when(request.getSession()).thenReturn(session);
     }
 
     @After
@@ -65,10 +43,9 @@ public class AccountServiceTest {
 
     @Test
     public void testRegisterSuccess() throws Exception {
-        authorizationData(false, true);
         boolean success = true;
         try {
-            ac.register(request);
+            ac.register(TEST_USER, TEST_PASSWORD);
         } catch (AccountServiceException | EmptyDataException e) {
             success = false;
         }
@@ -78,21 +55,19 @@ public class AccountServiceTest {
 
     @Test
     public void testRegisterDuplicationName() throws Exception {
-        authorizationData(false, true);
-        ac.register(request);
+        ac.register(TEST_USER, TEST_PASSWORD);
         exp.expect(AccountServiceException.class);
         exp.expectMessage(ExceptionMessages.USER_ALREADY_EXISTS);
-        ac.register(request);
+        ac.register(TEST_USER, TEST_PASSWORD);
     }
 
 
     @Test
     public void testAuthenticateSuccess() throws Exception {
-        authorizationData(false, true);
         boolean success = true;
-        ac.register(request);
+        ac.register(TEST_USER, TEST_PASSWORD);
         try {
-            ac.authenticate(request);
+            ac.authenticate(TEST_USER, TEST_PASSWORD);
         } catch (AccountServiceException | EmptyDataException e) {
             success = false;
         }
@@ -101,28 +76,24 @@ public class AccountServiceTest {
 
     @Test
     public void testAuthenticateFail() throws Exception {
-        authorizationData(false, true);
-        ac.register(request);
-        authorizationData(false, false);
+        ac.register(TEST_USER, TEST_PASSWORD);
         exp.expect(AccountServiceException.class);
         exp.expectMessage(ExceptionMessages.FAILED_AUTH);
-        ac.authenticate(request);
+        ac.authenticate(TEST_USER, TEST_PASSWORD.concat("32"));
     }
 
 
     @Test
     public void testCheckLoginPasswordFail() throws Exception {
-        authorizationData(true, true);
         exp.expect(EmptyDataException.class);
         exp.expectMessage(ExceptionMessages.EMPTY_DATA);
-        ac.authenticate(request);
+        ac.authenticate("", "");
     }
 
     @Test
     public void testDeleteSuccess() throws Exception {
-        authorizationData(false, true);
         boolean success = true;
-        ac.register(request);
+        ac.register(TEST_USER, TEST_PASSWORD);
         try {
             ac.delete(TEST_USER);
         } catch (AccountServiceException e) {
@@ -133,9 +104,8 @@ public class AccountServiceTest {
 
     @Test
     public void testDeleteFail() throws Exception {
-        authorizationData(false, true);
         boolean success = true;
-        ac.register(request);
+        ac.register(TEST_USER, TEST_PASSWORD);
         try {
             ac.delete(TEST_USER.concat("1337"));
         } catch (AccountServiceException e) {

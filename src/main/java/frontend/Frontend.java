@@ -1,6 +1,7 @@
 package frontend;
 
 import db.AccountService;
+import db.AccountServiceMessages;
 import exceptions.AccountServiceException;
 import exceptions.EmptyDataException;
 import templater.PageGenerator;
@@ -67,7 +68,8 @@ public class Frontend extends HttpServlet {
                 break;
 
             case Pages.QUIT_PAGE:
-                ac.logout(userSession);
+                ac.logout();
+                userSession.invalidate();
                 response.sendRedirect(Pages.MAIN_PAGE);
                 break;
 
@@ -95,24 +97,38 @@ public class Frontend extends HttpServlet {
     }
 
     private void doAuthenticate(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        Map<String, Object> pageVariables = new HashMap<>();
+        String username = request.getParameter("username");
+        String password = request.getParameter("password");
         try {
-            ac.authenticate(request);
+            long userId = ac.authenticate(username, password);
+            request.getSession().setAttribute("userId", userId);
             response.sendRedirect(Pages.TIMER_PAGE);
         } catch (EmptyDataException | AccountServiceException e) {
-            pageVariables.put("errorMsg", e.getMessage());
-            sendResponse(response, Templates.AUTH_TPL, pageVariables);
+            messageToPage(response, e.getMessage(), Templates.AUTH_TPL, Templates.MessageType.ERROR);
         }
     }
 
     private void doRegister(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        Map<String, Object> pageVariables = new HashMap<>();
+        String username = request.getParameter("username");
+        String password = request.getParameter("password");
         try {
-            ac.register(request);
-            response.sendRedirect(Pages.TIMER_PAGE);
+            ac.register(username, password);
+            messageToPage(response, AccountServiceMessages.USER_ADDED, Templates.REGISTER_TPL, Templates.MessageType.INFO);
         } catch (EmptyDataException | AccountServiceException e) {
-            pageVariables.put("errorMsg", e.getMessage());
-            sendResponse(response, Templates.REGISTER_TPL, pageVariables);
+            messageToPage(response, e.getMessage(), Templates.REGISTER_TPL, Templates.MessageType.ERROR);
         }
+    }
+
+    private void messageToPage(HttpServletResponse response, String message, String pageTemplate, Templates.MessageType type) throws ServletException, IOException {
+        Map<String, Object> pageVariables = new HashMap<>();
+        switch (type) {
+            case ERROR:
+                pageVariables.put("errorMsg", message);
+                break;
+            case INFO:
+                pageVariables.put("infoMsg", message);
+                break;
+        }
+        sendResponse(response, pageTemplate, pageVariables);
     }
 }

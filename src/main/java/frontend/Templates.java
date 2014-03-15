@@ -4,7 +4,14 @@ package frontend;
  * Created by Andrew Govorovsky on 06.03.14
  */
 public final class Templates {
-    private Templates() {}
+    private Templates() {
+    }
+
+    public enum MessageType {
+        ERROR,
+        INFO,
+    }
+
     public static final String AUTH_TPL = "auth.tpl";
     public static final String REGISTER_TPL = "register.tpl";
     public static final String MAIN_TPL = "index.tpl";

@@ -18,10 +18,8 @@ import javax.servlet.Servlet;
  */
 public class GServer {
     private Server server;
-    private int port;
 
     public GServer(int port) {
-        this.port = port;
         server = new Server(port);
         server.setHandler(initHandlers());
     }

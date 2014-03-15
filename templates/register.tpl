@@ -8,6 +8,10 @@
     <p id="error" style="color:red;">${errorMsg}</p>
 </#if>
 
+<#if infoMsg??>
+    <p id="info" style="color:green;">${infoMsg}</p>
+</#if>
+
 <form method="post">
     <label for=username title="Username: ">
         <input id="username" type="text" name="username"/>

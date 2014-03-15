@@ -11,7 +11,6 @@ import java.sql.SQLException;
 public class Executor {
     public static <T> T executeQuery(Connection connection, ExecHandler<T> handler, String query, Object... vars) throws SQLException {
         PreparedStatement stm = connection.prepareStatement(query);
-
         for (int i = 0; i < vars.length; i++) {
             stm.setObject(i + 1, vars[i]);
         }

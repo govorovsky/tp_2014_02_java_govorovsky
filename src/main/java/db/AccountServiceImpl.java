@@ -5,17 +5,13 @@ import exceptions.AccountServiceException;
 import exceptions.EmptyDataException;
 import exceptions.ExceptionMessages;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Created by Andrew Govorovsky on 22.02.14
  */
 public class AccountServiceImpl implements AccountService {
-    private AtomicLong userIdGenerator = new AtomicLong(0);
     private UsersDAO dao;
 
     public AccountServiceImpl() {
@@ -27,15 +23,12 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public void register(HttpServletRequest request) throws AccountServiceException, EmptyDataException {
+    public void register(String username, String password) throws AccountServiceException, EmptyDataException {
         try {
-            String username = request.getParameter("username");
-            String password = request.getParameter("password");
             checkLoginPassword(username, password);
             if (dao.getUser(username) != null) throw new AccountServiceException(ExceptionMessages.USER_ALREADY_EXISTS);
             if (!dao.saveUser(new UserDataSet(username, password)))
                 throw new AccountServiceException(ExceptionMessages.SQL_ERROR);
-            request.getSession().setAttribute("userId", userIdGenerator.getAndIncrement());
         } catch (SQLException e) {
             e.printStackTrace();
             throw new AccountServiceException(ExceptionMessages.SQL_ERROR);
@@ -54,15 +47,13 @@ public class AccountServiceImpl implements AccountService {
 
 
     @Override
-    public void authenticate(@NotNull HttpServletRequest request) throws AccountServiceException, EmptyDataException {
+    public long authenticate(String username, String password) throws AccountServiceException, EmptyDataException {
         try {
-            String username = request.getParameter("username");
-            String password = request.getParameter("password");
             checkLoginPassword(username, password);
             UserDataSet user = dao.getUser(username);
             if (user == null) throw new AccountServiceException(ExceptionMessages.NO_SUCH_USER_FOUND);
             if (!user.getPassword().equals(password)) throw new AccountServiceException(ExceptionMessages.FAILED_AUTH);
-            request.getSession().setAttribute("userId", userIdGenerator.getAndIncrement());
+            return user.getUserId();
         } catch (SQLException e) {
             e.printStackTrace();
             throw new AccountServiceException(ExceptionMessages.SQL_ERROR);
@@ -70,8 +61,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public void logout(@NotNull HttpSession session) {
-        session.invalidate();
+    public void logout() {
     }
 
 
