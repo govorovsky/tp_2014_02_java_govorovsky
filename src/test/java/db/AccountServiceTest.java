@@ -4,19 +4,26 @@ import exceptions.AccountServiceException;
 import exceptions.EmptyDataException;
 import exceptions.ExceptionMessages;
 import junit.framework.Assert;
+import messageSystem.AddressService;
+import messageSystem.MessageSystem;
 import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static util.StringGenerator.getRandomString;
 
 /**
  * Created by Andrew Govorovsky on 12.03.14
  */
 public class AccountServiceTest {
-    private AccountService ac = new AccountServiceImpl();
+    private AccountService ac = new AccountServiceImpl(messageSystem);
+
+    private static final MessageSystem messageSystem = mock(MessageSystem.class);
+    private static final AddressService addressService = mock(AddressService.class);
 
     private static final String TEST_USER = getRandomString(9);
     private static final String TEST_PASSWORD = getRandomString(9);
@@ -34,6 +41,7 @@ public class AccountServiceTest {
 
     @BeforeClass
     public static void setUp() throws Exception {
+        when(messageSystem.getAddressService()).thenReturn(addressService);
     }
 
     @After

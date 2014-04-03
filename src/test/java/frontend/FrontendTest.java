@@ -5,8 +5,10 @@ import db.AccountServiceMessages;
 import exceptions.AccountServiceException;
 import exceptions.ExceptionMessages;
 import junit.framework.Assert;
+import messageSystem.AddressService;
+import messageSystem.MessageSystem;
 import org.junit.After;
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import javax.servlet.http.HttpServletRequest;
@@ -22,8 +24,11 @@ import static util.StringGenerator.getRandomString;
  * Created by Andrew Govorovsky on 08.03.14
  */
 public class FrontendTest {
-    private Frontend frontend = new Frontend(accountService);
+    private Frontend frontend = new Frontend(messageSystem);
     private StringWriter stringWriter = new StringWriter();
+
+    private static final MessageSystem messageSystem = mock(MessageSystem.class);
+    private static final AddressService addressService = mock(AddressService.class);
 
     private static final HttpServletRequest request = mock(HttpServletRequest.class);
     private static final HttpServletResponse response = mock(HttpServletResponse.class);
@@ -31,26 +36,29 @@ public class FrontendTest {
     private static final AccountService accountService = mock(AccountService.class);
 
     private static final String TEST_USER = getRandomString(7);
+    private static final String SSID = getRandomString(7);
     private static final String TEST_PASSWORD = getRandomString(7);
 
     public FrontendTest() {
         try {
             when(response.getWriter()).thenReturn(new PrintWriter(stringWriter));
-            when(request.getSession()).thenReturn(session);
         } catch (Exception e) {
 
         }
     }
 
+    @BeforeClass
+    public static void setUp() throws Exception {
+        when(request.getSession()).thenReturn(session);
+        when(messageSystem.getAddressService()).thenReturn(addressService);
+        when(session.getId()).thenReturn(SSID);
+    }
 
     private void authorized(boolean isAuthorized, String destination) {
         when(request.getPathInfo()).thenReturn(destination);
-        when(session.getAttribute("userId")).thenReturn(isAuthorized ? 0L : null);
+        frontend.updateUserSession(new UserSession(TEST_USER, SSID, isAuthorized ? AccountServiceMessages.AUTHORIZED : "", isAuthorized ? 12L : null));
     }
 
-    @Before
-    public void setUp() {
-    }
 
     @After
     public void tearDown() throws Exception {
@@ -92,10 +100,12 @@ public class FrontendTest {
         when(request.getParameter("username")).thenReturn(getRandomString(13));
         when(request.getParameter("password")).thenReturn(getRandomString(13));
         when(request.getPathInfo()).thenReturn(Pages.AUTH_PAGE);
-        doThrow(new AccountServiceException(ExceptionMessages.FAILED_AUTH)).when(accountService).authenticate(TEST_USER, TEST_PASSWORD);
         frontend.doPost(request, response);
+        verify(response, atLeastOnce()).sendRedirect(Pages.AUTH_PAGE);
+        frontend.updateUserSession(new UserSession(TEST_USER, SSID, ExceptionMessages.FAILED_AUTH));
+        frontend.doGet(request, response);
         Assert.assertTrue(stringWriter.toString().contains("Auth Page"));
-        Assert.assertTrue(stringWriter.toString().contains("error"));
+        Assert.assertTrue(stringWriter.toString().contains(ExceptionMessages.FAILED_AUTH));
     }
 
     @Test
@@ -103,8 +113,9 @@ public class FrontendTest {
         when(request.getParameter("username")).thenReturn(TEST_USER);
         when(request.getParameter("password")).thenReturn(TEST_PASSWORD);
         when(request.getPathInfo()).thenReturn(Pages.AUTH_PAGE);
-        doNothing().when(accountService).authenticate(TEST_USER, TEST_PASSWORD);
         frontend.doPost(request, response);
+        frontend.updateUserSession(new UserSession(TEST_USER, SSID, AccountServiceMessages.AUTHORIZED));
+        frontend.doGet(request, response);
         verify(response, atLeastOnce()).sendRedirect(Pages.TIMER_PAGE);
         Assert.assertFalse(stringWriter.toString().contains("error"));
     }
@@ -124,6 +135,8 @@ public class FrontendTest {
         when(request.getPathInfo()).thenReturn(Pages.REG_PAGE);
         doThrow(new AccountServiceException(ExceptionMessages.EMPTY_DATA)).when(accountService).register(TEST_USER, TEST_PASSWORD);
         frontend.doPost(request, response);
+        frontend.updateUserSession(new UserSession(TEST_USER, SSID, ExceptionMessages.USER_ALREADY_EXISTS));
+        frontend.doGet(request, response);
         Assert.assertTrue(stringWriter.toString().contains("Registration Page"));
         Assert.assertTrue(stringWriter.toString().contains("error"));
     }
@@ -133,10 +146,11 @@ public class FrontendTest {
         when(request.getParameter("login")).thenReturn(TEST_USER);
         when(request.getParameter("password")).thenReturn(TEST_USER);
         when(request.getPathInfo()).thenReturn(Pages.REG_PAGE);
-        doNothing().when(accountService).register(TEST_USER, TEST_PASSWORD);
         frontend.doPost(request, response);
+        frontend.updateUserSession(new UserSession(TEST_USER, SSID, AccountServiceMessages.USER_ADDED));
+        frontend.doGet(request, response);
         Assert.assertFalse(stringWriter.toString().contains("error"));
-        Assert.assertFalse(stringWriter.toString().contains(AccountServiceMessages.USER_ADDED));
+        Assert.assertTrue(stringWriter.toString().contains(AccountServiceMessages.USER_ADDED));
     }
 
     @Test
@@ -159,9 +173,6 @@ public class FrontendTest {
         authorized(true, Pages.QUIT_PAGE);
         frontend.doGet(request, response);
         verify(response, atLeastOnce()).sendRedirect(Pages.MAIN_PAGE);
-        verify(accountService, atLeastOnce()).logout();
     }
-
-
 }
 

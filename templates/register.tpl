@@ -2,8 +2,10 @@
 <html>
 <head>
     <title>Registration Page</title>
+    <script src="/refresher.js"></script>
 </head>
-<body>
+<body onload='waiting(${waiting});'>
+<div>Choose login and password:</div>
 <#if errorMsg??>
     <p id="error" style="color:red;">${errorMsg}</p>
 </#if>
@@ -20,7 +22,7 @@
     <label for="password" title="Password: ">
         <input id="password" type="text" name="password"/>
     </label>
-    <input type="submit" value="Register!"/>
+    <input id="submit" type="submit" value="Register!"/>
 </form>
 <div>
     <img src="/jetty-logo-80x22.png"/>

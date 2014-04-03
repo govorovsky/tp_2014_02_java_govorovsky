@@ -4,23 +4,26 @@ import com.sun.istack.internal.NotNull;
 import exceptions.AccountServiceException;
 import exceptions.EmptyDataException;
 import exceptions.ExceptionMessages;
+import messageSystem.Address;
+import messageSystem.MessageSystem;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 
 /**
  * Created by Andrew Govorovsky on 22.02.14
  */
 public class AccountServiceImpl implements AccountService {
-    private UsersDAO dao;
+    private final UsersDAO dao;
+    private final MessageSystem messageSystem;
+    private final Address address = new Address();
 
-    public AccountServiceImpl() {
-        dao = new UsersDAO(DatabaseConnector.getConnection());
+    public AccountServiceImpl(MessageSystem ms) {
+        dao = new UsersDAO();
+        this.messageSystem = ms;
+        messageSystem.addService(this);
+        messageSystem.getAddressService().addAddress(this);
     }
 
-    public AccountServiceImpl(Connection conn) {
-        dao = new UsersDAO(conn);
-    }
 
     @Override
     public void register(String username, String password) throws AccountServiceException, EmptyDataException {
@@ -60,13 +63,31 @@ public class AccountServiceImpl implements AccountService {
         }
     }
 
-    @Override
-    public void logout() {
-    }
-
 
     private void checkLoginPassword(String username, String pass) throws EmptyDataException {
         if (username == null || pass == null || "".equals(username) || "".equals(pass))
-            throw new EmptyDataException(ExceptionMessages.EMPTY_DATA);
+            throw new EmptyDataException();
+    }
+
+    public MessageSystem getMessageSystem() {
+        return messageSystem;
+    }
+
+    @Override
+    public Address getAddress() {
+        return address;
+    }
+
+    @Override
+    @SuppressWarnings("InfiniteLoopStatement")
+    public void run() {
+        while (true) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            messageSystem.execForAbonent(this);
+        }
     }
 }

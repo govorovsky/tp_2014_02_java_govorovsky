@@ -1,7 +1,9 @@
 package serverMain;
 
+import db.AccountService;
 import db.AccountServiceImpl;
 import frontend.Frontend;
+import messageSystem.MessageSystem;
 import org.eclipse.jetty.rewrite.handler.RedirectRegexRule;
 import org.eclipse.jetty.rewrite.handler.RewriteHandler;
 import org.eclipse.jetty.server.Handler;
@@ -11,19 +13,17 @@ import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 
-import javax.servlet.Servlet;
 
 /**
  * Created by Andrew Govorovsky on 15.02.14
  */
 public class GServer {
-    private Server server;
+    private final Server server;
 
     public GServer(int port) {
         server = new Server(port);
         server.setHandler(initHandlers());
     }
-
 
     public void start() throws Exception {
         server.start();
@@ -39,7 +39,15 @@ public class GServer {
 
 
     private HandlerList initHandlers() {
-        Servlet frontend = new Frontend(new AccountServiceImpl());
+        MessageSystem messageSystem = new MessageSystem();
+        Frontend frontend = new Frontend(messageSystem);
+        AccountService accountService1 = new AccountServiceImpl(messageSystem);
+        AccountService accountService2 = new AccountServiceImpl(messageSystem);
+
+        (new Thread(frontend)).start();
+        (new Thread(accountService1)).start();
+        (new Thread(accountService2)).start();
+
         ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
         context.addServlet(new ServletHolder(frontend), "/*"); /* servlet for all URL */
 

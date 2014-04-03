@@ -1,9 +1,9 @@
 package frontend;
 
-import db.AccountService;
+import db.AccountServiceImpl;
 import db.AccountServiceMessages;
-import exceptions.AccountServiceException;
-import exceptions.EmptyDataException;
+import exceptions.ExceptionMessages;
+import messageSystem.*;
 import templater.PageGenerator;
 
 import javax.servlet.ServletException;
@@ -15,61 +15,111 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by Andrew Govorovsky on 15.02.14
  */
-public class Frontend extends HttpServlet {
-    private AccountService ac;
+public class Frontend extends HttpServlet implements Abonent, Runnable {
+    private final Map<String, UserSession> sessions = new ConcurrentHashMap<>();
+    private final MessageSystem messageSystem;
+    private final Address address = new Address();
 
-    public Frontend(AccountService ac) {
-        this.ac = ac;
+    public Frontend(MessageSystem ms) {
+        this.messageSystem = ms;
+        messageSystem.addService(this);
+        messageSystem.getAddressService().addAddress(this);
     }
 
-    private void sendResponse(HttpServletResponse resp, String resultPage, Map<String, Object> variables) throws ServletException, IOException {
+    private void sendResponse(HttpServletResponse resp, String resultPage, Map<String, Object> variables) throws IOException {
         resp.setContentType("text/html;charset=utf-8");
         resp.setStatus(HttpServletResponse.SC_OK);
         resp.getWriter().println(PageGenerator.getPage(resultPage, variables));
+    }
+
+    private void getWaitingPage(HttpServletResponse resp, UserSession session, Map<String, Object> pageVariables, String pageTemplate) throws ServletException, IOException {
+        String isWaiting = "false";
+        if (session != null) {
+            switch (session.getStatus()) {
+                case AccountServiceMessages.WAIT_AUTH:
+                case AccountServiceMessages.WAIT_USER_REG:
+                    isWaiting = "true";
+                    break;
+                case AccountServiceMessages.AUTHORIZED:
+                    resp.sendRedirect(Pages.TIMER_PAGE);
+                    return;
+            }
+        }
+        pageVariables.put("waiting", isWaiting);
+        sendResponse(resp, pageTemplate, pageVariables);
+    }
+
+    private void getMainPage(HttpServletResponse response, UserSession session, Map<String, Object> pageVariables) throws ServletException, IOException {
+        Long userId = (session != null) ? session.getId() : null;
+        if (userId != null) {
+            pageVariables.put("userId", userId);
+            pageVariables.put("userName", session.getName());
+            sendResponse(response, Templates.USER_TPL, pageVariables);
+        } else {
+            sendResponse(response, Templates.MAIN_TPL, pageVariables);
+        }
+    }
+
+
+    private void getTimerPage(HttpServletResponse response, UserSession session, Map<String, Object> pageVariables) throws ServletException, IOException {
+        Long userId = (session != null) ? session.getId() : null;
+        if (userId != null) {
+            pageVariables.put("time", new Date().toString());
+            pageVariables.put("userId", userId);
+            pageVariables.put("refreshPeriod", "1000");
+            sendResponse(response, Templates.TIMER_TPL, pageVariables);
+        } else {
+            response.sendRedirect(Pages.MAIN_PAGE);
+        }
+    }
+
+    private void checkSessionState(UserSession session) {
+        if (session.getStatus().equals(AccountServiceMessages.AUTHORIZED) || session.getStatus().equals(AccountServiceMessages.USER_ADDED)) {
+            session.stopWaiting();
+        }
+        if (session.elapsedTime() > UserSession.MAX_WAITING) {
+            session.setStatus(ExceptionMessages.SQL_ERROR);
+            session.stopWaiting();
+        }
     }
 
     @Override
     public void doGet(HttpServletRequest request,
                       HttpServletResponse response) throws ServletException, IOException {
         Map<String, Object> pageVariables = new HashMap<>();
-        HttpSession userSession = request.getSession();
-        Long userId = (Long) userSession.getAttribute("userId");
+        HttpSession httpSession = request.getSession();
+        UserSession session = sessions.get(httpSession.getId());
+
+        if (session != null) {
+            checkSessionState(session);
+            parseStatus(session.getStatus(), pageVariables);
+        }
+
         switch (request.getPathInfo()) {
             case Pages.MAIN_PAGE:
-                if (userId != null) {
-                    pageVariables.put("userId", userId);
-                    sendResponse(response, Templates.USER_TPL, pageVariables);
-                } else {
-                    sendResponse(response, Templates.MAIN_TPL, pageVariables);
-                }
+                getMainPage(response, session, pageVariables);
                 break;
 
             case Pages.AUTH_PAGE:
-                sendResponse(response, Templates.AUTH_TPL, pageVariables);
+                getWaitingPage(response, session, pageVariables, Templates.AUTH_TPL);
                 break;
 
             case Pages.REG_PAGE:
-                sendResponse(response, Templates.REGISTER_TPL, pageVariables);
+                getWaitingPage(response, session, pageVariables, Templates.REGISTER_TPL);
                 break;
 
             case Pages.TIMER_PAGE:
-                if (userId != null) {
-                    pageVariables.put("time", new Date().toString());
-                    pageVariables.put("userId", userId);
-                    pageVariables.put("refreshPeriod", "1000");
-                    sendResponse(response, Templates.TIMER_TPL, pageVariables);
-                } else {
-                    response.sendRedirect(Pages.MAIN_PAGE);
-                }
+                getTimerPage(response, session, pageVariables);
                 break;
 
             case Pages.QUIT_PAGE:
-                ac.logout();
-                userSession.invalidate();
+                sessions.remove(httpSession.getId());
+                httpSession.invalidate();
                 response.sendRedirect(Pages.MAIN_PAGE);
                 break;
 
@@ -79,6 +129,7 @@ public class Frontend extends HttpServlet {
         }
 
     }
+
 
     @Override
     public void doPost(HttpServletRequest request,
@@ -96,39 +147,70 @@ public class Frontend extends HttpServlet {
         }
     }
 
-    private void doAuthenticate(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    private void doAuthenticate(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String username = request.getParameter("username");
         String password = request.getParameter("password");
-        try {
-            long userId = ac.authenticate(username, password);
-            request.getSession().setAttribute("userId", userId);
-            response.sendRedirect(Pages.TIMER_PAGE);
-        } catch (EmptyDataException | AccountServiceException e) {
-            messageToPage(response, e.getMessage(), Templates.AUTH_TPL, Templates.MessageType.ERROR);
+        UserSession newSession = new UserSession(username, request.getSession().getId(), AccountServiceMessages.WAIT_AUTH);
+        newSession.startWaiting();
+        sessions.put(request.getSession().getId(), newSession);
+        messageSystem.sendMessage(new MsgLogin(getAddress(), messageSystem.getAddressService().getAddress(AccountServiceImpl.class), username, password, newSession.getSsid()));
+        response.sendRedirect(Pages.AUTH_PAGE);
+    }
+
+    private void doRegister(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String username = request.getParameter("username");
+        String password = request.getParameter("password");
+        UserSession newSession = new UserSession(username, request.getSession().getId(), AccountServiceMessages.WAIT_USER_REG);
+        newSession.startWaiting();
+        sessions.put(request.getSession().getId(), newSession);
+        messageSystem.sendMessage(new MsgRegister(getAddress(), messageSystem.getAddressService().getAddress(AccountServiceImpl.class), username, password, newSession.getSsid()));
+        response.sendRedirect(Pages.REG_PAGE);
+    }
+
+    private void parseStatus(String status, Map<String, Object> pageVariables) {
+        switch (status) {
+            case ExceptionMessages.EMPTY_DATA:
+            case ExceptionMessages.FAILED_AUTH:
+            case ExceptionMessages.NO_SUCH_USER_FOUND:
+            case ExceptionMessages.SQL_ERROR:
+            case ExceptionMessages.USER_ALREADY_EXISTS:
+                pageVariables.put("errorMsg", status);
+                break;
+            case AccountServiceMessages.WAIT_AUTH:
+            case AccountServiceMessages.WAIT_USER_REG:
+            case AccountServiceMessages.USER_ADDED:
+                pageVariables.put("infoMsg", status);
+                break;
+            default:
+                pageVariables.put("userStatus", status);
+                break;
         }
     }
 
-    private void doRegister(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String username = request.getParameter("username");
-        String password = request.getParameter("password");
-        try {
-            ac.register(username, password);
-            messageToPage(response, AccountServiceMessages.USER_ADDED, Templates.REGISTER_TPL, Templates.MessageType.INFO);
-        } catch (EmptyDataException | AccountServiceException e) {
-            messageToPage(response, e.getMessage(), Templates.REGISTER_TPL, Templates.MessageType.ERROR);
+    public void updateUserSession(UserSession newSession) {
+        UserSession session = sessions.get(newSession.getSsid());
+        if (session != null) {
+            session.update(newSession);
+        } else {
+            sessions.put(newSession.getSsid(), newSession);
         }
     }
 
-    private void messageToPage(HttpServletResponse response, String message, String pageTemplate, Templates.MessageType type) throws ServletException, IOException {
-        Map<String, Object> pageVariables = new HashMap<>();
-        switch (type) {
-            case ERROR:
-                pageVariables.put("errorMsg", message);
-                break;
-            case INFO:
-                pageVariables.put("infoMsg", message);
-                break;
+    @Override
+    public Address getAddress() {
+        return address;
+    }
+
+    @Override
+    @SuppressWarnings("InfiniteLoopStatement")
+    public void run() {
+        while (true) {
+            messageSystem.execForAbonent(this);
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
-        sendResponse(response, pageTemplate, pageVariables);
     }
 }
