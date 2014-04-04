@@ -202,6 +202,11 @@ public class Frontend extends HttpServlet implements Abonent, Runnable {
     }
 
     @Override
+    public MessageSystem getMessageSystem() {
+        return messageSystem;
+    }
+
+    @Override
     @SuppressWarnings("InfiniteLoopStatement")
     public void run() {
         while (true) {

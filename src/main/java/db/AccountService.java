@@ -18,5 +18,4 @@ public interface AccountService extends Abonent, Runnable {
 
     long authenticate(String username, String password) throws AccountServiceException, EmptyDataException;
 
-    MessageSystem getMessageSystem();
 }

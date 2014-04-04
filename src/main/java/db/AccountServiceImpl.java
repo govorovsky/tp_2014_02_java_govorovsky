@@ -69,6 +69,8 @@ public class AccountServiceImpl implements AccountService {
             throw new EmptyDataException();
     }
 
+
+    @Override
     public MessageSystem getMessageSystem() {
         return messageSystem;
     }
