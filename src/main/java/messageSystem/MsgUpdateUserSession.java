@@ -14,6 +14,7 @@ public class MsgUpdateUserSession extends MsgToFrontend {
         this.session = session;
     }
 
+    @Override
     void exec(Frontend frontend) {
         frontend.updateUserSession(session);
     }

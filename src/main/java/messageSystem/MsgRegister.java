@@ -23,6 +23,7 @@ public class MsgRegister extends MsgToAccountService {
         this.ssid = ssid;
     }
 
+    @Override
     void exec(AccountService as) {
         UserSession session = new UserSession(username, ssid);
         try {

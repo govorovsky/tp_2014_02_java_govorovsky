@@ -11,6 +11,7 @@ public abstract class MsgToFrontend extends Msg {
         super(from, to);
     }
 
+    @Override
     public void exec(Abonent abonent) {
         if (abonent instanceof Frontend) {
             exec((Frontend) abonent);
