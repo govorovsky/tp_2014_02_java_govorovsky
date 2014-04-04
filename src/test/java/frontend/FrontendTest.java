@@ -2,7 +2,6 @@ package frontend;
 
 import db.AccountService;
 import db.AccountServiceMessages;
-import exceptions.AccountServiceException;
 import exceptions.ExceptionMessages;
 import junit.framework.Assert;
 import messageSystem.AddressService;
@@ -10,6 +9,7 @@ import messageSystem.MessageSystem;
 import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import util.Result;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -133,7 +133,7 @@ public class FrontendTest {
         when(request.getParameter("login")).thenReturn("");
         when(request.getParameter("password")).thenReturn("");
         when(request.getPathInfo()).thenReturn(Pages.REG_PAGE);
-        doThrow(new AccountServiceException(ExceptionMessages.EMPTY_DATA)).when(accountService).register(TEST_USER, TEST_PASSWORD);
+        when(accountService.register(TEST_USER, TEST_PASSWORD)).thenReturn(new Result<>(false, ExceptionMessages.USER_ALREADY_EXISTS));
         frontend.doPost(request, response);
         frontend.updateUserSession(new UserSession(TEST_USER, SSID, ExceptionMessages.USER_ALREADY_EXISTS));
         frontend.doGet(request, response);

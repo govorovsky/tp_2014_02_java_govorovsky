@@ -1,11 +1,10 @@
 package db;
 
 import com.sun.istack.internal.NotNull;
-import exceptions.AccountServiceException;
-import exceptions.EmptyDataException;
 import exceptions.ExceptionMessages;
 import messageSystem.Address;
 import messageSystem.MessageSystem;
+import util.Result;
 
 import java.sql.Connection;
 import java.sql.Driver;
@@ -42,50 +41,51 @@ public class AccountServiceImpl implements AccountService {
 
 
     @Override
-    public void register(String username, String password) throws AccountServiceException, EmptyDataException {
+    public Result<Boolean> register(String username, String password) {
         UsersDAO dao = new UsersDAO(getDBConnection());
         try {
-            checkLoginPassword(username, password);
-            if (dao.getUser(username) != null) throw new AccountServiceException(ExceptionMessages.USER_ALREADY_EXISTS);
+            if (!checkLoginPassword(username, password)) return new Result<>(false, ExceptionMessages.EMPTY_DATA);
+            if (dao.getUser(username) != null) return new Result<>(false, ExceptionMessages.USER_ALREADY_EXISTS);
             if (!dao.saveUser(new UserDataSet(username, password)))
-                throw new AccountServiceException(ExceptionMessages.SQL_ERROR);
+                return new Result<>(false, ExceptionMessages.SQL_ERROR);
         } catch (SQLException e) {
             e.printStackTrace();
-            throw new AccountServiceException(ExceptionMessages.SQL_ERROR);
+            return new Result<>(false, ExceptionMessages.SQL_ERROR);
         }
+        return new Result<>(true, AccountServiceMessages.USER_ADDED);
     }
 
     @Override
-    public void delete(@NotNull String username) throws AccountServiceException {
+    public Result<Boolean> delete(@NotNull String username) {
         UsersDAO dao = new UsersDAO(getDBConnection());
         try {
-            if (!dao.deleteUser(username)) throw new AccountServiceException(ExceptionMessages.NO_SUCH_USER_FOUND);
+            if (!dao.deleteUser(username)) return new Result<>(false, ExceptionMessages.NO_SUCH_USER_FOUND);
+            return new Result<>(true, ExceptionMessages.OK);
         } catch (SQLException e) {
             e.printStackTrace();
-            throw new AccountServiceException(ExceptionMessages.SQL_ERROR);
+            return new Result<>(false, ExceptionMessages.SQL_ERROR);
         }
     }
 
 
     @Override
-    public long authenticate(String username, String password) throws AccountServiceException, EmptyDataException {
+    public Result<Long> authenticate(String username, String password) {
         UsersDAO dao = new UsersDAO(getDBConnection());
         try {
-            checkLoginPassword(username, password);
+            if (!checkLoginPassword(username, password)) return new Result<>(-1L, ExceptionMessages.EMPTY_DATA);
             UserDataSet user = dao.getUser(username);
-            if (user == null) throw new AccountServiceException(ExceptionMessages.NO_SUCH_USER_FOUND);
-            if (!user.getPassword().equals(password)) throw new AccountServiceException(ExceptionMessages.FAILED_AUTH);
-            return user.getUserId();
+            if (user == null) return new Result<>(-1L, ExceptionMessages.NO_SUCH_USER_FOUND);
+            if (!user.getPassword().equals(password)) return new Result<>(-1L, ExceptionMessages.FAILED_AUTH);
+            return new Result<>(user.getUserId(), AccountServiceMessages.AUTHORIZED);
         } catch (SQLException e) {
             e.printStackTrace();
-            throw new AccountServiceException(ExceptionMessages.SQL_ERROR);
+            return new Result<>(-1L, ExceptionMessages.SQL_ERROR);
         }
     }
 
 
-    private void checkLoginPassword(String username, String pass) throws EmptyDataException {
-        if (username == null || pass == null || "".equals(username) || "".equals(pass))
-            throw new EmptyDataException();
+    private boolean checkLoginPassword(String username, String pass) {
+        return !(username == null || pass == null || "".equals(username) || "".equals(pass));
     }
 
 

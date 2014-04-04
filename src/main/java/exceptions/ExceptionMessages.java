@@ -9,4 +9,5 @@ public class ExceptionMessages {
     public final static String NO_SUCH_USER_FOUND = "No such user found";
     public final static String SQL_ERROR = "DB seems down. Try again";
     public final static String EMPTY_DATA = "Fill all fields";
+    public final static String OK = "OK";
 }

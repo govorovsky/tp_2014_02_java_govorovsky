@@ -37,7 +37,7 @@ public class FunctionalMessageTest {
     public void testSendMsgRegister() throws Exception {
         messageSystem.sendMessage(new MsgRegister(frontend.getAddress(), accountService.getAddress(), USER, PASS, getRandomString(7)));
         Thread.sleep(2000);
-        Assert.assertTrue(accountService.authenticate(USER, PASS) > 0);
+        Assert.assertTrue(accountService.authenticate(USER, PASS).getResult() > 0);
         accountService.delete(USER);
     }
 }

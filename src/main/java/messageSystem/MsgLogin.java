@@ -1,10 +1,8 @@
 package messageSystem;
 
 import db.AccountService;
-import db.AccountServiceMessages;
-import exceptions.AccountServiceException;
-import exceptions.EmptyDataException;
 import frontend.UserSession;
+import util.Result;
 
 /**
  * Created by Andrew Govorovsky on 01.04.14
@@ -23,14 +21,9 @@ public class MsgLogin extends MsgToAccountService {
 
     @Override
     void exec(AccountService as) {
-        Long id;
         UserSession session;
-        try {
-            id = as.authenticate(username, pass);
-            session = new UserSession(username, ssid, AccountServiceMessages.AUTHORIZED, id);
-        } catch (EmptyDataException | AccountServiceException e) {
-            session = new UserSession(username, ssid, e.getMessage());
-        }
+        Result<Long> result = as.authenticate(username, pass);
+        session = new UserSession(username, ssid, result.getStatus(), result.getResult());
         as.getMessageSystem().sendMessage(new MsgUpdateUserSession(getTo(), getFrom(), session));
     }
 }

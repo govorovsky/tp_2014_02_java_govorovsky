@@ -6,6 +6,7 @@ import frontend.Frontend;
 import frontend.UserSession;
 import org.junit.*;
 import org.mockito.ArgumentCaptor;
+import util.Result;
 
 import static org.mockito.Mockito.*;
 import static util.StringGenerator.getRandomString;
@@ -60,7 +61,7 @@ public class MessageSystemTest {
     public void testSendLoginMessage() throws Exception {
         Long id = 12l;
 
-        when(accountService.authenticate(USERNAME, PASS)).thenReturn(id);
+        when(accountService.authenticate(USERNAME, PASS)).thenReturn(new Result<>(id, AccountServiceMessages.AUTHORIZED));
 
         messageSystem.sendMessage(new MsgLogin(messageSystem.getAddressService().getAddress(frontend.getClass()), messageSystem.getAddressService().getAddress(accountService.getClass()), USERNAME, PASS, SSID));
         messageSystem.execForAbonent(accountService);
@@ -77,6 +78,7 @@ public class MessageSystemTest {
 
     @Test
     public void testRegisterMessage() throws Exception {
+        when(accountService.register(USERNAME, PASS)).thenReturn(new Result<>(true, AccountServiceMessages.USER_ADDED));
         messageSystem.sendMessage(new MsgRegister(messageSystem.getAddressService().getAddress(frontend.getClass()), messageSystem.getAddressService().getAddress(accountService.getClass()), USERNAME, PASS, SSID));
         messageSystem.execForAbonent(accountService);
         messageSystem.execForAbonent(frontend);

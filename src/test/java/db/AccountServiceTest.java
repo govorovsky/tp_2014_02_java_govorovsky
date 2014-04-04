@@ -1,7 +1,5 @@
 package db;
 
-import exceptions.AccountServiceException;
-import exceptions.EmptyDataException;
 import exceptions.ExceptionMessages;
 import junit.framework.Assert;
 import messageSystem.AddressService;
@@ -11,6 +9,7 @@ import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import util.Result;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -51,75 +50,47 @@ public class AccountServiceTest {
 
     @Test
     public void testRegisterSuccess() throws Exception {
-        boolean success = true;
-        try {
-            ac.register(TEST_USER, TEST_PASSWORD);
-        } catch (AccountServiceException | EmptyDataException e) {
-            success = false;
-        }
-        Assert.assertTrue(success);
+        Result<Boolean> res = ac.register(TEST_USER, TEST_PASSWORD);
+        Assert.assertTrue(res.getResult());
     }
-
 
     @Test
     public void testRegisterDuplicationName() throws Exception {
         ac.register(TEST_USER, TEST_PASSWORD);
-        exp.expect(AccountServiceException.class);
-        exp.expectMessage(ExceptionMessages.USER_ALREADY_EXISTS);
-        ac.register(TEST_USER, TEST_PASSWORD);
+        Assert.assertTrue(ac.register(TEST_USER, TEST_PASSWORD).getStatus().equals(ExceptionMessages.USER_ALREADY_EXISTS));
     }
 
 
     @Test
     public void testAuthenticateSuccess() throws Exception {
-        boolean success = true;
         ac.register(TEST_USER, TEST_PASSWORD);
-        try {
-            ac.authenticate(TEST_USER, TEST_PASSWORD);
-        } catch (AccountServiceException | EmptyDataException e) {
-            success = false;
-        }
-        Assert.assertTrue(success);
+        Result<Long> result = ac.authenticate(TEST_USER, TEST_PASSWORD);
+        Assert.assertTrue(result.getResult() > 0);
     }
 
     @Test
     public void testAuthenticateFail() throws Exception {
         ac.register(TEST_USER, TEST_PASSWORD);
-        exp.expect(AccountServiceException.class);
-        exp.expectMessage(ExceptionMessages.FAILED_AUTH);
-        ac.authenticate(TEST_USER, TEST_PASSWORD.concat("32"));
+        Result<Long> result = ac.authenticate(TEST_USER, TEST_PASSWORD.concat("32"));
+        Assert.assertTrue(result.getResult() == -1L);
+        Assert.assertTrue(result.getStatus().equals(ExceptionMessages.FAILED_AUTH));
     }
 
 
     @Test
     public void testCheckLoginPasswordFail() throws Exception {
-        exp.expect(EmptyDataException.class);
-        exp.expectMessage(ExceptionMessages.EMPTY_DATA);
-        ac.authenticate("", "");
+        Assert.assertTrue(ac.authenticate("", "").getStatus().equals(ExceptionMessages.EMPTY_DATA));
     }
 
     @Test
     public void testDeleteSuccess() throws Exception {
-        boolean success = true;
         ac.register(TEST_USER, TEST_PASSWORD);
-        try {
-            ac.delete(TEST_USER);
-        } catch (AccountServiceException e) {
-            success = false;
-        }
-        Assert.assertTrue(success);
+        Assert.assertTrue(ac.delete(TEST_USER).getResult());
     }
 
     @Test
     public void testDeleteFail() throws Exception {
-        boolean success = true;
         ac.register(TEST_USER, TEST_PASSWORD);
-        try {
-            ac.delete(TEST_USER.concat("1337"));
-        } catch (AccountServiceException e) {
-            success = false;
-            Assert.assertTrue(e.getMessage().equals(ExceptionMessages.NO_SUCH_USER_FOUND));
-        }
-        Assert.assertFalse(success);
+        Assert.assertTrue(ac.delete(TEST_USER.concat("1337")).getStatus().equals(ExceptionMessages.NO_SUCH_USER_FOUND));
     }
 }
