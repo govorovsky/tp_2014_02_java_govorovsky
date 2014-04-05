@@ -1,8 +1,6 @@
 package frontend;
 
 import db.AccountServiceImpl;
-import db.AccountServiceMessages;
-import exceptions.ExceptionMessages;
 import messageSystem.*;
 import templater.PageGenerator;
 
@@ -41,11 +39,11 @@ public class Frontend extends HttpServlet implements Abonent, Runnable {
         String isWaiting = "false";
         if (session != null) {
             switch (session.getStatus()) {
-                case AccountServiceMessages.WAIT_AUTH:
-                case AccountServiceMessages.WAIT_USER_REG:
+                case WAIT_AUTH:
+                case WAIT_USER_REG:
                     isWaiting = "true";
                     break;
-                case AccountServiceMessages.AUTHORIZED:
+                case AUTHORIZED:
                     resp.sendRedirect(Pages.TIMER_PAGE);
                     return;
             }
@@ -79,11 +77,11 @@ public class Frontend extends HttpServlet implements Abonent, Runnable {
     }
 
     private void checkSessionState(UserSession session) {
-        if (session.getStatus().equals(AccountServiceMessages.AUTHORIZED) || session.getStatus().equals(AccountServiceMessages.USER_ADDED)) {
+        if (session.getStatus().equals(UserStatus.AUTHORIZED) || session.getStatus().equals(UserStatus.USER_ADDED)) {
             session.stopWaiting();
         }
         if (session.elapsedTime() > UserSession.MAX_WAITING) {
-            session.setStatus(ExceptionMessages.SQL_ERROR);
+            session.setStatus(UserStatus.SQL_ERROR);
             session.stopWaiting();
         }
     }
@@ -150,7 +148,7 @@ public class Frontend extends HttpServlet implements Abonent, Runnable {
     private void doAuthenticate(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String username = request.getParameter("username");
         String password = request.getParameter("password");
-        UserSession newSession = new UserSession(username, request.getSession().getId(), AccountServiceMessages.WAIT_AUTH);
+        UserSession newSession = new UserSession(username, request.getSession().getId(), UserStatus.WAIT_AUTH);
         newSession.startWaiting();
         sessions.put(request.getSession().getId(), newSession);
         messageSystem.sendMessage(new MsgLogin(getAddress(), messageSystem.getAddressService().getAddress(AccountServiceImpl.class), username, password, newSession.getSsid()));
@@ -160,29 +158,29 @@ public class Frontend extends HttpServlet implements Abonent, Runnable {
     private void doRegister(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String username = request.getParameter("username");
         String password = request.getParameter("password");
-        UserSession newSession = new UserSession(username, request.getSession().getId(), AccountServiceMessages.WAIT_USER_REG);
+        UserSession newSession = new UserSession(username, request.getSession().getId(), UserStatus.WAIT_USER_REG);
         newSession.startWaiting();
         sessions.put(request.getSession().getId(), newSession);
         messageSystem.sendMessage(new MsgRegister(getAddress(), messageSystem.getAddressService().getAddress(AccountServiceImpl.class), username, password, newSession.getSsid()));
         response.sendRedirect(Pages.REG_PAGE);
     }
 
-    private void parseStatus(String status, Map<String, Object> pageVariables) {
+    private void parseStatus(UserStatus status, Map<String, Object> pageVariables) {
         switch (status) {
-            case ExceptionMessages.EMPTY_DATA:
-            case ExceptionMessages.FAILED_AUTH:
-            case ExceptionMessages.NO_SUCH_USER_FOUND:
-            case ExceptionMessages.SQL_ERROR:
-            case ExceptionMessages.USER_ALREADY_EXISTS:
-                pageVariables.put("errorMsg", status);
+            case EMPTY_DATA:
+            case FAILED_AUTH:
+            case NO_SUCH_USER_FOUND:
+            case SQL_ERROR:
+            case USER_ALREADY_EXISTS:
+                pageVariables.put("errorMsg", status.getMessage());
                 break;
-            case AccountServiceMessages.WAIT_AUTH:
-            case AccountServiceMessages.WAIT_USER_REG:
-            case AccountServiceMessages.USER_ADDED:
-                pageVariables.put("infoMsg", status);
+            case WAIT_AUTH:
+            case WAIT_USER_REG:
+            case USER_ADDED:
+                pageVariables.put("infoMsg", status.getMessage());
                 break;
             default:
-                pageVariables.put("userStatus", status);
+                pageVariables.put("userStatus", status.getMessage());
                 break;
         }
     }

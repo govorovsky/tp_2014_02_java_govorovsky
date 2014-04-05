@@ -3,7 +3,7 @@ package functional;
 import com.sun.istack.internal.NotNull;
 import db.AccountService;
 import db.AccountServiceImpl;
-import exceptions.ExceptionMessages;
+import frontend.UserStatus;
 import messageSystem.AddressService;
 import messageSystem.MessageSystem;
 import org.junit.*;
@@ -102,7 +102,7 @@ public class FunctionalAuthTest {
                     boolean res;
                     WebElement id = d.findElement(By.id(elementToFind));
                     if (isOk) res = id.getText().contains("Your id");
-                    else res = id.getText().contains(ExceptionMessages.NO_SUCH_USER_FOUND);
+                    else res = id.getText().contains(UserStatus.NO_SUCH_USER_FOUND.getMessage());
                     return res;
                 }
             });

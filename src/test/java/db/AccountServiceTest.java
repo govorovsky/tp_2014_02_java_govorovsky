@@ -1,6 +1,6 @@
 package db;
 
-import exceptions.ExceptionMessages;
+import frontend.UserStatus;
 import junit.framework.Assert;
 import messageSystem.AddressService;
 import messageSystem.MessageSystem;
@@ -57,7 +57,7 @@ public class AccountServiceTest {
     @Test
     public void testRegisterDuplicationName() throws Exception {
         ac.register(TEST_USER, TEST_PASSWORD);
-        Assert.assertTrue(ac.register(TEST_USER, TEST_PASSWORD).getStatus().equals(ExceptionMessages.USER_ALREADY_EXISTS));
+        Assert.assertTrue(ac.register(TEST_USER, TEST_PASSWORD).getStatus() == UserStatus.USER_ALREADY_EXISTS);
     }
 
 
@@ -73,13 +73,13 @@ public class AccountServiceTest {
         ac.register(TEST_USER, TEST_PASSWORD);
         Result<Long> result = ac.authenticate(TEST_USER, TEST_PASSWORD.concat("32"));
         Assert.assertTrue(result.getResult() == -1L);
-        Assert.assertTrue(result.getStatus().equals(ExceptionMessages.FAILED_AUTH));
+        Assert.assertTrue(result.getStatus() == UserStatus.FAILED_AUTH);
     }
 
 
     @Test
     public void testCheckLoginPasswordFail() throws Exception {
-        Assert.assertTrue(ac.authenticate("", "").getStatus().equals(ExceptionMessages.EMPTY_DATA));
+        Assert.assertTrue(ac.authenticate("", "").getStatus() == UserStatus.EMPTY_DATA);
     }
 
     @Test
@@ -91,6 +91,6 @@ public class AccountServiceTest {
     @Test
     public void testDeleteFail() throws Exception {
         ac.register(TEST_USER, TEST_PASSWORD);
-        Assert.assertTrue(ac.delete(TEST_USER.concat("1337")).getStatus().equals(ExceptionMessages.NO_SUCH_USER_FOUND));
+        Assert.assertTrue(ac.delete(TEST_USER.concat("1337")).getStatus() == UserStatus.NO_SUCH_USER_FOUND);
     }
 }

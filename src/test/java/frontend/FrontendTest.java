@@ -1,8 +1,6 @@
 package frontend;
 
 import db.AccountService;
-import db.AccountServiceMessages;
-import exceptions.ExceptionMessages;
 import junit.framework.Assert;
 import messageSystem.AddressService;
 import messageSystem.MessageSystem;
@@ -56,7 +54,7 @@ public class FrontendTest {
 
     private void authorized(boolean isAuthorized, String destination) {
         when(request.getPathInfo()).thenReturn(destination);
-        frontend.updateUserSession(new UserSession(TEST_USER, SSID, isAuthorized ? AccountServiceMessages.AUTHORIZED : "", isAuthorized ? 12L : null));
+        frontend.updateUserSession(new UserSession(TEST_USER, SSID, isAuthorized ? UserStatus.AUTHORIZED : UserStatus.OK, isAuthorized ? 12L : null));
     }
 
 
@@ -102,10 +100,10 @@ public class FrontendTest {
         when(request.getPathInfo()).thenReturn(Pages.AUTH_PAGE);
         frontend.doPost(request, response);
         verify(response, atLeastOnce()).sendRedirect(Pages.AUTH_PAGE);
-        frontend.updateUserSession(new UserSession(TEST_USER, SSID, ExceptionMessages.FAILED_AUTH));
+        frontend.updateUserSession(new UserSession(TEST_USER, SSID, UserStatus.FAILED_AUTH));
         frontend.doGet(request, response);
         Assert.assertTrue(stringWriter.toString().contains("Auth Page"));
-        Assert.assertTrue(stringWriter.toString().contains(ExceptionMessages.FAILED_AUTH));
+        Assert.assertTrue(stringWriter.toString().contains(UserStatus.FAILED_AUTH.getMessage()));
     }
 
     @Test
@@ -114,7 +112,7 @@ public class FrontendTest {
         when(request.getParameter("password")).thenReturn(TEST_PASSWORD);
         when(request.getPathInfo()).thenReturn(Pages.AUTH_PAGE);
         frontend.doPost(request, response);
-        frontend.updateUserSession(new UserSession(TEST_USER, SSID, AccountServiceMessages.AUTHORIZED));
+        frontend.updateUserSession(new UserSession(TEST_USER, SSID, UserStatus.AUTHORIZED));
         frontend.doGet(request, response);
         verify(response, atLeastOnce()).sendRedirect(Pages.TIMER_PAGE);
         Assert.assertFalse(stringWriter.toString().contains("error"));
@@ -133,9 +131,9 @@ public class FrontendTest {
         when(request.getParameter("login")).thenReturn("");
         when(request.getParameter("password")).thenReturn("");
         when(request.getPathInfo()).thenReturn(Pages.REG_PAGE);
-        when(accountService.register(TEST_USER, TEST_PASSWORD)).thenReturn(new Result<>(false, ExceptionMessages.USER_ALREADY_EXISTS));
+        when(accountService.register(TEST_USER, TEST_PASSWORD)).thenReturn(new Result<>(false, UserStatus.USER_ALREADY_EXISTS));
         frontend.doPost(request, response);
-        frontend.updateUserSession(new UserSession(TEST_USER, SSID, ExceptionMessages.USER_ALREADY_EXISTS));
+        frontend.updateUserSession(new UserSession(TEST_USER, SSID, UserStatus.USER_ALREADY_EXISTS));
         frontend.doGet(request, response);
         Assert.assertTrue(stringWriter.toString().contains("Registration Page"));
         Assert.assertTrue(stringWriter.toString().contains("error"));
@@ -147,10 +145,10 @@ public class FrontendTest {
         when(request.getParameter("password")).thenReturn(TEST_USER);
         when(request.getPathInfo()).thenReturn(Pages.REG_PAGE);
         frontend.doPost(request, response);
-        frontend.updateUserSession(new UserSession(TEST_USER, SSID, AccountServiceMessages.USER_ADDED));
+        frontend.updateUserSession(new UserSession(TEST_USER, SSID, UserStatus.USER_ADDED));
         frontend.doGet(request, response);
         Assert.assertFalse(stringWriter.toString().contains("error"));
-        Assert.assertTrue(stringWriter.toString().contains(AccountServiceMessages.USER_ADDED));
+        Assert.assertTrue(stringWriter.toString().contains(UserStatus.USER_ADDED.getMessage()));
     }
 
     @Test

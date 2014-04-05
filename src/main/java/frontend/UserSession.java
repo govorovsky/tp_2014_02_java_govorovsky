@@ -8,40 +8,37 @@ import util.StopWatch;
 public class UserSession {
     private String username;
     private Long id;
-    private String status;
+    private UserStatus status;
     private String ssid;
-    public static final long MAX_WAITING = 5000; // 5 sec waiting for DB response
     public StopWatch stopWatch = new StopWatch();
+
+    public static final long MAX_WAITING = 5000; // 5 sec waiting for DB response
 
     public UserSession(String username, String ssid) {
         this.username = username;
         this.ssid = ssid;
     }
 
-    public UserSession(String username, String ssid, String status) {
+    public UserSession(String username, String ssid, UserStatus status) {
         this(username, ssid);
         this.status = status;
     }
 
-    public UserSession(String username, String ssid, String status, Long id) {
+    public UserSession(String username, String ssid, UserStatus status, Long id) {
         this(username, ssid, status);
         this.id = id;
     }
 
-    public void setStatus(String st) {
+    public void setStatus(UserStatus st) {
         this.status = st;
     }
 
-    public String getStatus() {
+    public UserStatus getStatus() {
         return status;
     }
 
     public Long getId() {
         return id;
-    }
-
-    public void setId(Long newId) {
-        id = newId;
     }
 
     public String getName() {

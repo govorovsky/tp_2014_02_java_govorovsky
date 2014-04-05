@@ -23,9 +23,8 @@ public class MsgRegister extends MsgToAccountService {
 
     @Override
     void exec(AccountService as) {
-        UserSession session;
         Result<Boolean> result = as.register(username, pass);
-        session = new UserSession(username, ssid, result.getStatus());
+        UserSession session = new UserSession(username, ssid, result.getStatus());
         as.getMessageSystem().sendMessage(new MsgUpdateUserSession(getTo(), getFrom(), session));
     }
 }

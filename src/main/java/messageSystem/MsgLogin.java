@@ -21,9 +21,8 @@ public class MsgLogin extends MsgToAccountService {
 
     @Override
     void exec(AccountService as) {
-        UserSession session;
         Result<Long> result = as.authenticate(username, pass);
-        session = new UserSession(username, ssid, result.getStatus(), result.getResult());
+        UserSession session = new UserSession(username, ssid, result.getStatus(), result.getResult());
         as.getMessageSystem().sendMessage(new MsgUpdateUserSession(getTo(), getFrom(), session));
     }
 }

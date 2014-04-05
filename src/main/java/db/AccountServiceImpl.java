@@ -1,7 +1,7 @@
 package db;
 
 import com.sun.istack.internal.NotNull;
-import exceptions.ExceptionMessages;
+import frontend.UserStatus;
 import messageSystem.Address;
 import messageSystem.MessageSystem;
 import util.Result;
@@ -44,26 +44,26 @@ public class AccountServiceImpl implements AccountService {
     public Result<Boolean> register(String username, String password) {
         UsersDAO dao = new UsersDAO(getDBConnection());
         try {
-            if (!checkLoginPassword(username, password)) return new Result<>(false, ExceptionMessages.EMPTY_DATA);
-            if (dao.getUser(username) != null) return new Result<>(false, ExceptionMessages.USER_ALREADY_EXISTS);
+            if (!checkLoginPassword(username, password)) return new Result<>(false, UserStatus.EMPTY_DATA);
+            if (dao.getUser(username) != null) return new Result<>(false, UserStatus.USER_ALREADY_EXISTS);
             if (!dao.saveUser(new UserDataSet(username, password)))
-                return new Result<>(false, ExceptionMessages.SQL_ERROR);
+                return new Result<>(false, UserStatus.SQL_ERROR);
         } catch (SQLException e) {
             e.printStackTrace();
-            return new Result<>(false, ExceptionMessages.SQL_ERROR);
+            return new Result<>(false, UserStatus.SQL_ERROR);
         }
-        return new Result<>(true, AccountServiceMessages.USER_ADDED);
+        return new Result<>(true, UserStatus.USER_ADDED);
     }
 
     @Override
     public Result<Boolean> delete(@NotNull String username) {
         UsersDAO dao = new UsersDAO(getDBConnection());
         try {
-            if (!dao.deleteUser(username)) return new Result<>(false, ExceptionMessages.NO_SUCH_USER_FOUND);
-            return new Result<>(true, ExceptionMessages.OK);
+            if (!dao.deleteUser(username)) return new Result<>(false, UserStatus.NO_SUCH_USER_FOUND);
+            return new Result<>(true, UserStatus.OK);
         } catch (SQLException e) {
             e.printStackTrace();
-            return new Result<>(false, ExceptionMessages.SQL_ERROR);
+            return new Result<>(false, UserStatus.SQL_ERROR);
         }
     }
 
@@ -72,14 +72,14 @@ public class AccountServiceImpl implements AccountService {
     public Result<Long> authenticate(String username, String password) {
         UsersDAO dao = new UsersDAO(getDBConnection());
         try {
-            if (!checkLoginPassword(username, password)) return new Result<>(-1L, ExceptionMessages.EMPTY_DATA);
+            if (!checkLoginPassword(username, password)) return new Result<>(-1L, UserStatus.EMPTY_DATA);
             UserDataSet user = dao.getUser(username);
-            if (user == null) return new Result<>(-1L, ExceptionMessages.NO_SUCH_USER_FOUND);
-            if (!user.getPassword().equals(password)) return new Result<>(-1L, ExceptionMessages.FAILED_AUTH);
-            return new Result<>(user.getUserId(), AccountServiceMessages.AUTHORIZED);
+            if (user == null) return new Result<>(-1L, UserStatus.NO_SUCH_USER_FOUND);
+            if (!user.getPassword().equals(password)) return new Result<>(-1L, UserStatus.FAILED_AUTH);
+            return new Result<>(user.getUserId(), UserStatus.AUTHORIZED);
         } catch (SQLException e) {
             e.printStackTrace();
-            return new Result<>(-1L, ExceptionMessages.SQL_ERROR);
+            return new Result<>(-1L, UserStatus.SQL_ERROR);
         }
     }
 
