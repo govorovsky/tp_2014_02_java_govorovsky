@@ -6,43 +6,25 @@ import messageSystem.Address;
 import messageSystem.MessageSystem;
 import util.Result;
 
-import java.sql.Connection;
-import java.sql.Driver;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 
 /**
  * Created by Andrew Govorovsky on 22.02.14
  */
 public class AccountServiceImpl implements AccountService {
-    private Connection connection;
+    private final UsersDAO dao;
     private final MessageSystem messageSystem;
     private final Address address = new Address();
 
-    public AccountServiceImpl(MessageSystem ms) {
+    public AccountServiceImpl(Database db, MessageSystem ms) {
+        this.dao = new UsersDAO(db);
         this.messageSystem = ms;
         messageSystem.addService(this);
         messageSystem.getAddressService().addAddress(this);
     }
 
-    private Connection getDBConnection() {
-        try {
-            if (connection != null && !connection.isClosed()) {
-                return connection;
-            }
-            DriverManager.registerDriver((Driver) Class.forName("com.mysql.jdbc.Driver").newInstance());
-            connection = DriverManager.getConnection("jdbc:mysql://" + "localhost:" + "3306/" + "gameserver?" + "user=root&" + "password=qazxsw12");
-            return connection;
-        } catch (SQLException | ClassNotFoundException | InstantiationException | IllegalAccessException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-
     @Override
     public Result<Boolean> register(String username, String password) {
-        UsersDAO dao = new UsersDAO(getDBConnection());
         try {
             if (!checkLoginPassword(username, password)) return new Result<>(false, UserStatus.EMPTY_DATA);
             if (dao.getUser(username) != null) return new Result<>(false, UserStatus.USER_ALREADY_EXISTS);
@@ -57,7 +39,6 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public Result<Boolean> delete(@NotNull String username) {
-        UsersDAO dao = new UsersDAO(getDBConnection());
         try {
             if (!dao.deleteUser(username)) return new Result<>(false, UserStatus.NO_SUCH_USER_FOUND);
             return new Result<>(true, UserStatus.OK);
@@ -70,7 +51,6 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public Result<Long> authenticate(String username, String password) {
-        UsersDAO dao = new UsersDAO(getDBConnection());
         try {
             if (!checkLoginPassword(username, password)) return new Result<>(-1L, UserStatus.EMPTY_DATA);
             UserDataSet user = dao.getUser(username);

@@ -3,6 +3,7 @@ package functional;
 import com.sun.istack.internal.NotNull;
 import db.AccountService;
 import db.AccountServiceImpl;
+import db.HsqlDatabase;
 import frontend.UserStatus;
 import messageSystem.AddressService;
 import messageSystem.MessageSystem;
@@ -54,7 +55,7 @@ public class FunctionalAuthTest {
 
         when(messageSystem.getAddressService()).thenReturn(addressService);
 
-        accountService = new AccountServiceImpl(messageSystem);
+        accountService = new AccountServiceImpl(new HsqlDatabase(), messageSystem);
     }
 
     @Before

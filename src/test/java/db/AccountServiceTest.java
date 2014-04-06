@@ -19,7 +19,7 @@ import static util.StringGenerator.getRandomString;
  * Created by Andrew Govorovsky on 12.03.14
  */
 public class AccountServiceTest {
-    private AccountService ac = new AccountServiceImpl(messageSystem);
+    private AccountService ac = new AccountServiceImpl(new HsqlDatabase(), messageSystem);
 
     private static final MessageSystem messageSystem = mock(MessageSystem.class);
     private static final AddressService addressService = mock(AddressService.class);

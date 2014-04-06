@@ -7,7 +7,6 @@
       <sourceFolder url="file://$MODULE_DIR$/src/main/java" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/test/java" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/src/main/resources" type="java-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/test" isTestSource="true" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
     </content>
     <orderEntry type="inheritedJdk" />
@@ -69,6 +68,7 @@
     <orderEntry type="library" name="Maven: net.java.dev.jna:jna:3.2.3" level="project" />
     <orderEntry type="library" name="Maven: org.seleniumhq.selenium:selenium-iphone-driver:2.4.0" level="project" />
     <orderEntry type="library" name="Maven: org.seleniumhq.selenium:selenium-support:2.4.0" level="project" />
+    <orderEntry type="library" name="Maven: org.hsqldb:hsqldb:2.0.0" level="project" />
   </component>
 </module>
 

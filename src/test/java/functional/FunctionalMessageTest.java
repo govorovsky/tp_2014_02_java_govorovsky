@@ -2,6 +2,7 @@ package functional;
 
 import db.AccountService;
 import db.AccountServiceImpl;
+import db.HsqlDatabase;
 import frontend.Frontend;
 import junit.framework.Assert;
 import messageSystem.MessageSystem;
@@ -26,7 +27,7 @@ public class FunctionalMessageTest {
     public FunctionalMessageTest() throws Exception {
         messageSystem = new MessageSystem();
         frontend = new Frontend(messageSystem);
-        accountService = new AccountServiceImpl(messageSystem);
+        accountService = new AccountServiceImpl(new HsqlDatabase(), messageSystem);
         fe = new Thread(frontend);
         as = new Thread(accountService);
         fe.start();

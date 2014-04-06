@@ -22,7 +22,7 @@ public class MsgLogin extends MsgToAccountService {
     @Override
     void exec(AccountService as) {
         Result<Long> result = as.authenticate(username, pass);
-        UserSession session = new UserSession(username, ssid, result.getStatus(), result.getResult());
+        UserSession session = new UserSession(username, ssid, result.getStatus(), (result.getResult() < 0) ? null : result.getResult());
         as.getMessageSystem().sendMessage(new MsgUpdateUserSession(getTo(), getFrom(), session));
     }
 }

@@ -2,6 +2,7 @@ package serverMain;
 
 import db.AccountService;
 import db.AccountServiceImpl;
+import db.MysqlDatabase;
 import frontend.Frontend;
 import messageSystem.MessageSystem;
 import org.eclipse.jetty.rewrite.handler.RedirectRegexRule;
@@ -41,8 +42,8 @@ public class GServer {
     private HandlerList initHandlers() {
         MessageSystem messageSystem = new MessageSystem();
         Frontend frontend = new Frontend(messageSystem);
-        AccountService accountService1 = new AccountServiceImpl(messageSystem);
-        AccountService accountService2 = new AccountServiceImpl(messageSystem);
+        AccountService accountService1 = new AccountServiceImpl(new MysqlDatabase(), messageSystem);
+        AccountService accountService2 = new AccountServiceImpl(new MysqlDatabase(), messageSystem);
 
         (new Thread(frontend)).start();
         (new Thread(accountService1)).start();
