@@ -34,8 +34,6 @@ public class FunctionalMessageTest {
     private static final HttpServletResponse response = mock(HttpServletResponse.class);
     private static final HttpSession session = mock(HttpSession.class);
 
-    Thread fe, as;
-
     private static final String USER = getRandomString(7);
     private static final String PASS = getRandomString(7);
     private static final String SSID = getRandomString(7);
@@ -49,8 +47,8 @@ public class FunctionalMessageTest {
         messageSystem = new MessageSystem();
         frontend = new Frontend(messageSystem);
         accountService = new AccountServiceImpl(new HsqlDatabase(), messageSystem);
-        fe = new Thread(frontend);
-        as = new Thread(accountService);
+        Thread fe = new Thread(frontend);
+        Thread as = new Thread(accountService);
         fe.start();
         as.start();
     }
@@ -64,6 +62,7 @@ public class FunctionalMessageTest {
         when(request.getPathInfo()).thenReturn(Pages.MAIN_PAGE);
         frontend.doGet(request, response);
         Assert.assertTrue(stringWriter.toString().contains(USER));
+        Assert.assertFalse(stringWriter.toString().contains("Anonymous"));
         accountService.delete(USER);
     }
 }
