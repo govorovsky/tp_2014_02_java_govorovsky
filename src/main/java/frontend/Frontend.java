@@ -77,12 +77,14 @@ public class Frontend extends HttpServlet implements Abonent, Runnable {
     }
 
     private void checkSessionState(UserSession session) {
-        if (session.getStatus().equals(UserStatus.AUTHORIZED) || session.getStatus().equals(UserStatus.USER_ADDED)) {
-            session.stopWaiting();
-        }
-        if (session.elapsedTime() > AccountServiceImpl.MAX_WAITING) {
-            session.setStatus(UserStatus.SQL_ERROR);
-            session.stopWaiting();
+        if (session.isWaiting()) {
+            if (session.getStatus().equals(UserStatus.AUTHORIZED) || session.getStatus().equals(UserStatus.USER_ADDED)) {
+                session.stopWaiting();
+            }
+            if (session.elapsedTime() > AccountServiceImpl.MAX_WAITING) {
+                session.setStatus(UserStatus.SQL_ERROR);
+                session.stopWaiting();
+            }
         }
     }
 

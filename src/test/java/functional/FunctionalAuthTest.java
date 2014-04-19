@@ -3,7 +3,7 @@ package functional;
 import com.sun.istack.internal.NotNull;
 import db.AccountService;
 import db.AccountServiceImpl;
-import db.HsqlDatabase;
+import db.MysqlDatabase;
 import frontend.UserStatus;
 import messageSystem.AddressService;
 import messageSystem.MessageSystem;
@@ -55,18 +55,18 @@ public class FunctionalAuthTest {
 
         when(messageSystem.getAddressService()).thenReturn(addressService);
 
-        accountService = new AccountServiceImpl(new HsqlDatabase(), messageSystem);
+        accountService = new AccountServiceImpl(new MysqlDatabase(), messageSystem);
     }
 
     @Before
     public void registerTestUser() throws Exception {
-        accountService.register(TEST_USER, TEST_PASSWORD);
+        accountService.register(TEST_USER, TEST_PASSWORD).getResult();
     }
 
 
     @After
     public void tearDown() throws Exception {
-        deleteTestUser();
+
     }
 
     @AfterClass
@@ -81,7 +81,7 @@ public class FunctionalAuthTest {
         try {
             accountService.delete(TEST_USER);
         } catch (Exception e) {
-
+            e.printStackTrace();
         }
     }
 

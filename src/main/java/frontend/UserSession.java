@@ -63,6 +63,10 @@ public class UserSession {
         stopWatch.stop();
     }
 
+    public boolean isWaiting() {
+        return stopWatch.isRunning();
+    }
+
     public long elapsedTime() {
         return stopWatch.getElapsedTime();
     }

@@ -8,7 +8,8 @@ package util;
 public class StopWatch {
 
     private long startTime = 0;
-    private boolean running = false;
+    private long stopTime = 0;
+    private volatile boolean running = false;
 
 
     public void start() {
@@ -18,16 +19,20 @@ public class StopWatch {
 
 
     public void stop() {
+        this.stopTime = System.currentTimeMillis();
         this.running = false;
     }
 
-    //elaspsed time in milliseconds
     public long getElapsedTime() {
-        long elapsed = 0;
         if (running) {
-            elapsed = (System.currentTimeMillis() - startTime);
+            return (System.currentTimeMillis() - startTime);
+        } else {
+            return stopTime - startTime;
         }
-        return elapsed;
+    }
+
+    public boolean isRunning() {
+        return running;
     }
 }
 
