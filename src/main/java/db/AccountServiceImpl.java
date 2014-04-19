@@ -15,6 +15,7 @@ public class AccountServiceImpl implements AccountService {
     private final UsersDAO dao;
     private final MessageSystem messageSystem;
     private final Address address = new Address();
+    public static final long MAX_WAITING = 5000;
 
     public AccountServiceImpl(Database db, MessageSystem ms) {
         this.dao = new UsersDAO(db);

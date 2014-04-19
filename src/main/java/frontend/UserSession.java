@@ -10,9 +10,7 @@ public class UserSession {
     private Long id;
     private UserStatus status;
     private String ssid;
-    public StopWatch stopWatch = new StopWatch();
-
-    public static final long MAX_WAITING = 5000; // 5 sec waiting for DB response
+    private StopWatch stopWatch = new StopWatch();
 
     public UserSession(String username, String ssid) {
         this.username = username;

@@ -80,7 +80,7 @@ public class Frontend extends HttpServlet implements Abonent, Runnable {
         if (session.getStatus().equals(UserStatus.AUTHORIZED) || session.getStatus().equals(UserStatus.USER_ADDED)) {
             session.stopWaiting();
         }
-        if (session.elapsedTime() > UserSession.MAX_WAITING) {
+        if (session.elapsedTime() > AccountServiceImpl.MAX_WAITING) {
             session.setStatus(UserStatus.SQL_ERROR);
             session.stopWaiting();
         }
