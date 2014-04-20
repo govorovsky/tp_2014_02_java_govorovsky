@@ -7,7 +7,7 @@ import java.sql.DriverManager;
 /**
  * Created by Andrew Govorovsky on 06.04.14
  */
-public class MysqlDatabase extends Database {
+public class MysqlDatabase implements Database {
 
     private static final String host = "localhost";
     private static final int port = 3306;
@@ -15,9 +15,10 @@ public class MysqlDatabase extends Database {
     private static final String user = "root";
     private static final String pass = "qazxsw12";
 
+    private Connection connection;
+
     public MysqlDatabase() {
     }
-
 
     @Override
     public Connection getConnection() {

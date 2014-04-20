@@ -7,7 +7,9 @@ import java.sql.SQLException;
 /**
  * Created by Andrew Govorovsky on 06.04.14
  */
-public class HsqlDatabase extends Database {
+public class HsqlDatabase implements Database {
+
+    private Connection connection;
 
     public HsqlDatabase() {
         try {
