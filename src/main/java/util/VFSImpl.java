@@ -20,22 +20,6 @@ public class VFSImpl implements VFS {
         this.root = root;
     }
 
-
-    public static void main(String[] args) {
-        try {
-            VFSImpl vfs = new VFSImpl(".");
-            Iterator<String> it = vfs.getIterator("/");
-            byte[] bytes = vfs.getBytes("/src/main/java/util/VFSImpl.java");
-            System.out.println(StringGenerator.byteArrayToHex(bytes));
-            while (it.hasNext()) {
-                System.out.println(it.next());
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-
     @Override
     public boolean isExist(String path) {
         return new File(root + path).exists();

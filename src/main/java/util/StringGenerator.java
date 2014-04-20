@@ -5,9 +5,6 @@ package util;
  */
 public class StringGenerator {
 
-    public static void main(String[] args) {
-        System.out.println(StringGenerator.getRandomString(123));
-    }
     public static String getRandomString(int len) {
         StringBuilder builder = new StringBuilder();
         for (int i = 0; i < len; i++) {

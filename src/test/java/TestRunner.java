@@ -6,13 +6,15 @@ import messageSystem.MessageSystemTest;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
 import org.junit.runner.notification.Failure;
+import util.StringGeneratorTest;
 
 /**
  * Created by Andrew Govorovsky on 13.03.14
  */
 public class TestRunner {
     public static void main(String[] args) {
-        Result result = JUnitCore.runClasses(FunctionalMessageTest.class, MessageSystemTest.class, AccountServiceTest.class, FrontendTest.class, FunctionalAuthTest.class);
+        Class<?> clazzez[] = {FunctionalMessageTest.class, MessageSystemTest.class, AccountServiceTest.class, FrontendTest.class, FunctionalAuthTest.class, StringGeneratorTest.class};
+        Result result = JUnitCore.runClasses(clazzez);
         if (result.wasSuccessful()) {
             System.out.println("All tests passed successful");
         } else {
