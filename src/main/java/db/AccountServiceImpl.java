@@ -1,10 +1,9 @@
 package db;
 
-import com.sun.istack.internal.NotNull;
-import frontend.UserStatus;
 import messageSystem.Address;
 import messageSystem.MessageSystem;
 import util.Result;
+import util.UserState;
 
 import java.sql.SQLException;
 
@@ -25,27 +24,27 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public Result<Boolean> register(String username, String password) {
+    public UserState register(String username, String password) {
         try {
-            if (!checkLoginPassword(username, password)) return new Result<>(false, UserStatus.EMPTY_DATA);
-            if (dao.getUser(username) != null) return new Result<>(false, UserStatus.USER_ALREADY_EXISTS);
+            if (!checkLoginPassword(username, password)) return UserState.EMPTY_DATA;
+            if (dao.getUser(username) != null) return UserState.USER_ALREADY_EXISTS;
             if (!dao.saveUser(new UserDataSet(username, password)))
-                return new Result<>(false, UserStatus.SQL_ERROR);
+                return UserState.SQL_ERROR;
         } catch (SQLException e) {
             e.printStackTrace();
-            return new Result<>(false, UserStatus.SQL_ERROR);
+            return UserState.SQL_ERROR;
         }
-        return new Result<>(true, UserStatus.USER_ADDED);
+        return UserState.USER_ADDED;
     }
 
     @Override
-    public Result<Boolean> delete(@NotNull String username) {
+    public UserState delete(String username) {
         try {
-            if (!dao.deleteUser(username)) return new Result<>(false, UserStatus.NO_SUCH_USER_FOUND);
-            return new Result<>(true, UserStatus.OK);
+            if (!dao.deleteUser(username)) return UserState.NO_SUCH_USER_FOUND;
+            return UserState.OK;
         } catch (SQLException e) {
             e.printStackTrace();
-            return new Result<>(false, UserStatus.SQL_ERROR);
+            return UserState.SQL_ERROR;
         }
     }
 
@@ -53,14 +52,14 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public Result<Long> authenticate(String username, String password) {
         try {
-            if (!checkLoginPassword(username, password)) return new Result<>(-1L, UserStatus.EMPTY_DATA);
+            if (!checkLoginPassword(username, password)) return new Result<>(UserState.EMPTY_DATA);
             UserDataSet user = dao.getUser(username);
-            if (user == null) return new Result<>(-1L, UserStatus.NO_SUCH_USER_FOUND);
-            if (!user.getPassword().equals(password)) return new Result<>(-1L, UserStatus.FAILED_AUTH);
-            return new Result<>(user.getUserId(), UserStatus.AUTHORIZED);
+            if (user == null) return new Result<>(UserState.NO_SUCH_USER_FOUND);
+            if (!user.getPassword().equals(password)) return new Result<>(UserState.FAILED_AUTH);
+            return new Result<>(user.getUserId(), UserState.AUTHORIZED);
         } catch (SQLException e) {
             e.printStackTrace();
-            return new Result<>(-1L, UserStatus.SQL_ERROR);
+            return new Result<>(UserState.SQL_ERROR);
         }
     }
 

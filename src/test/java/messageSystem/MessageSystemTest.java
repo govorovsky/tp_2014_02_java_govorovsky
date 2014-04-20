@@ -3,7 +3,7 @@ package messageSystem;
 import db.AccountService;
 import frontend.Frontend;
 import frontend.UserSession;
-import frontend.UserStatus;
+import util.UserState;
 import org.junit.*;
 import org.mockito.ArgumentCaptor;
 import util.Result;
@@ -50,7 +50,7 @@ public class MessageSystemTest {
 
     }
 
-    private boolean verifySession(String username, String ssid, UserStatus status, Long id) {
+    private boolean verifySession(String username, String ssid, UserState status, Long id) {
         boolean res = sessionCaptor.getValue().getStatus() == status &&
                 sessionCaptor.getValue().getName().equals(username) &&
                 sessionCaptor.getValue().getSsid().equals(ssid);
@@ -63,7 +63,7 @@ public class MessageSystemTest {
 
         Long id = (long) StringGenerator.getRandomString(1).charAt(0);
 
-        when(accountService.authenticate(USERNAME, PASS)).thenReturn(new Result<>(id, UserStatus.AUTHORIZED));
+        when(accountService.authenticate(USERNAME, PASS)).thenReturn(new Result<>(id, UserState.AUTHORIZED));
 
         messageSystem.sendMessage(new MsgLogin(messageSystem.getAddressService().getAddress(frontend.getClass()), messageSystem.getAddressService().getAddress(accountService.getClass()), USERNAME, PASS, SSID));
         messageSystem.execForAbonent(accountService);
@@ -74,13 +74,13 @@ public class MessageSystemTest {
         Assert.assertEquals(passCaptor.getValue(), PASS);
         verify(frontend, atLeastOnce()).updateUserSession(sessionCaptor.capture());
 
-        Assert.assertTrue(verifySession(USERNAME, SSID, UserStatus.AUTHORIZED, id));
+        Assert.assertTrue(verifySession(USERNAME, SSID, UserState.AUTHORIZED, id));
 
     }
 
     @Test
     public void testRegisterMessage() throws Exception {
-        when(accountService.register(USERNAME, PASS)).thenReturn(new Result<>(true, UserStatus.USER_ADDED));
+        when(accountService.register(USERNAME, PASS)).thenReturn(UserState.USER_ADDED);
         messageSystem.sendMessage(new MsgRegister(messageSystem.getAddressService().getAddress(frontend.getClass()), messageSystem.getAddressService().getAddress(accountService.getClass()), USERNAME, PASS, SSID));
         messageSystem.execForAbonent(accountService);
         messageSystem.execForAbonent(frontend);
@@ -90,6 +90,6 @@ public class MessageSystemTest {
         Assert.assertEquals(passCaptor.getValue(), PASS);
         verify(frontend, atLeastOnce()).updateUserSession(sessionCaptor.capture());
 
-        Assert.assertTrue(verifySession(USERNAME, SSID, UserStatus.USER_ADDED, null));
+        Assert.assertTrue(verifySession(USERNAME, SSID, UserState.USER_ADDED, null));
     }
 }

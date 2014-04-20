@@ -3,6 +3,7 @@ package frontend;
 import db.AccountServiceImpl;
 import messageSystem.*;
 import templater.PageGenerator;
+import util.UserState;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -78,11 +79,11 @@ public class Frontend extends HttpServlet implements Abonent, Runnable {
 
     private void checkSessionState(UserSession session) {
         if (session.isWaiting()) {
-            if (session.getStatus().equals(UserStatus.AUTHORIZED) || session.getStatus().equals(UserStatus.USER_ADDED)) {
+            if (session.getStatus().equals(UserState.AUTHORIZED) || session.getStatus().equals(UserState.USER_ADDED)) {
                 session.stopWaiting();
             }
             if (session.elapsedTime() > AccountServiceImpl.MAX_WAITING) {
-                session.setStatus(UserStatus.SQL_ERROR);
+                session.setStatus(UserState.SQL_ERROR);
                 session.stopWaiting();
             }
         }
@@ -150,7 +151,7 @@ public class Frontend extends HttpServlet implements Abonent, Runnable {
     private void doAuthenticate(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String username = request.getParameter("username");
         String password = request.getParameter("password");
-        UserSession newSession = new UserSession(username, request.getSession().getId(), UserStatus.WAIT_AUTH);
+        UserSession newSession = new UserSession(username, request.getSession().getId(), UserState.WAIT_AUTH);
         newSession.startWaiting();
         sessions.put(request.getSession().getId(), newSession);
         messageSystem.sendMessage(new MsgLogin(getAddress(), messageSystem.getAddressService().getAddress(AccountServiceImpl.class), username, password, newSession.getSsid()));
@@ -160,14 +161,14 @@ public class Frontend extends HttpServlet implements Abonent, Runnable {
     private void doRegister(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String username = request.getParameter("username");
         String password = request.getParameter("password");
-        UserSession newSession = new UserSession(username, request.getSession().getId(), UserStatus.WAIT_USER_REG);
+        UserSession newSession = new UserSession(username, request.getSession().getId(), UserState.WAIT_USER_REG);
         newSession.startWaiting();
         sessions.put(request.getSession().getId(), newSession);
         messageSystem.sendMessage(new MsgRegister(getAddress(), messageSystem.getAddressService().getAddress(AccountServiceImpl.class), username, password, newSession.getSsid()));
         response.sendRedirect(Pages.REG_PAGE);
     }
 
-    private void parseStatus(UserStatus status, Map<String, Object> pageVariables) {
+    private void parseStatus(UserState status, Map<String, Object> pageVariables) {
         switch (status) {
             case EMPTY_DATA:
             case FAILED_AUTH:

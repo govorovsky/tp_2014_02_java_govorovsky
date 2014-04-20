@@ -1,6 +1,7 @@
 package frontend;
 
 import util.StopWatch;
+import util.UserState;
 
 /**
  * Created by Andrew Govorovsky on 31.03.14
@@ -8,7 +9,7 @@ import util.StopWatch;
 public class UserSession {
     private String username;
     private Long id;
-    private UserStatus status;
+    private UserState status;
     private String ssid;
     private StopWatch stopWatch = new StopWatch();
 
@@ -17,21 +18,21 @@ public class UserSession {
         this.ssid = ssid;
     }
 
-    public UserSession(String username, String ssid, UserStatus status) {
+    public UserSession(String username, String ssid, UserState status) {
         this(username, ssid);
         this.status = status;
     }
 
-    public UserSession(String username, String ssid, UserStatus status, Long id) {
+    public UserSession(String username, String ssid, UserState status, Long id) {
         this(username, ssid, status);
         this.id = id;
     }
 
-    public void setStatus(UserStatus st) {
+    public void setStatus(UserState st) {
         this.status = st;
     }
 
-    public UserStatus getStatus() {
+    public UserState getStatus() {
         return status;
     }
 

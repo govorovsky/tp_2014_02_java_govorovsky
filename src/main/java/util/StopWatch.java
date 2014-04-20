@@ -9,7 +9,7 @@ public class StopWatch {
 
     private long startTime = 0;
     private long stopTime = 0;
-    private volatile boolean running = false;
+    private boolean running = false;
 
 
     public void start() {

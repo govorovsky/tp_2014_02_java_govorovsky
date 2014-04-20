@@ -1,28 +1,26 @@
 package util;
 
-import frontend.UserStatus;
-
 /**
  * Created by Andrew Govorovsky on 04.04.14
  */
 public class Result<T> {
-    private T result;
-    private UserStatus status;
+    private T data;
+    private UserState status;
 
-    public Result(T result) {
-        this.result = result;
+    public Result(T result, UserState status) {
+        this(status);
+        this.data = result;
     }
 
-    public Result(T result, UserStatus status) {
-        this(result);
+    public Result(UserState status) {
         this.status = status;
     }
 
-    public UserStatus getStatus() {
+    public UserState getStatus() {
         return status;
     }
 
-    public T getResult() {
-        return result;
+    public T getData() {
+        return data;
     }
 }

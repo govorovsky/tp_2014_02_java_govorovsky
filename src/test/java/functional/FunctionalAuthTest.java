@@ -4,7 +4,7 @@ import com.sun.istack.internal.NotNull;
 import db.AccountService;
 import db.AccountServiceImpl;
 import db.MysqlDatabase;
-import frontend.UserStatus;
+import util.UserState;
 import messageSystem.AddressService;
 import messageSystem.MessageSystem;
 import org.junit.*;
@@ -60,7 +60,7 @@ public class FunctionalAuthTest {
 
     @Before
     public void registerTestUser() throws Exception {
-        accountService.register(TEST_USER, TEST_PASSWORD).getResult();
+        accountService.register(TEST_USER, TEST_PASSWORD);
     }
 
 
@@ -103,7 +103,7 @@ public class FunctionalAuthTest {
                     boolean res;
                     WebElement id = d.findElement(By.id(elementToFind));
                     if (isOk) res = id.getText().contains("Your id");
-                    else res = id.getText().contains(UserStatus.NO_SUCH_USER_FOUND.getMessage());
+                    else res = id.getText().contains(UserState.NO_SUCH_USER_FOUND.getMessage());
                     return res;
                 }
             });

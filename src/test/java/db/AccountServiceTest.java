@@ -1,6 +1,6 @@
 package db;
 
-import frontend.UserStatus;
+import util.UserState;
 import junit.framework.Assert;
 import messageSystem.AddressService;
 import messageSystem.MessageSystem;
@@ -50,14 +50,14 @@ public class AccountServiceTest {
 
     @Test
     public void testRegisterSuccess() throws Exception {
-        Result<Boolean> res = ac.register(TEST_USER, TEST_PASSWORD);
-        Assert.assertTrue(res.getResult());
+        UserState res = ac.register(TEST_USER, TEST_PASSWORD);
+        Assert.assertTrue(res.isSuccess());
     }
 
     @Test
     public void testRegisterDuplicationName() throws Exception {
         ac.register(TEST_USER, TEST_PASSWORD);
-        Assert.assertTrue(ac.register(TEST_USER, TEST_PASSWORD).getStatus() == UserStatus.USER_ALREADY_EXISTS);
+        Assert.assertTrue(ac.register(TEST_USER, TEST_PASSWORD) == UserState.USER_ALREADY_EXISTS);
     }
 
 
@@ -65,32 +65,32 @@ public class AccountServiceTest {
     public void testAuthenticateSuccess() throws Exception {
         ac.register(TEST_USER, TEST_PASSWORD);
         Result<Long> result = ac.authenticate(TEST_USER, TEST_PASSWORD);
-        Assert.assertTrue(result.getResult() > 0);
+        Assert.assertTrue(result.getData() > 0);
     }
 
     @Test
     public void testAuthenticateFail() throws Exception {
         ac.register(TEST_USER, TEST_PASSWORD);
         Result<Long> result = ac.authenticate(TEST_USER, TEST_PASSWORD.concat("32"));
-        Assert.assertTrue(result.getResult() == -1L);
-        Assert.assertTrue(result.getStatus() == UserStatus.FAILED_AUTH);
+        Assert.assertTrue(result.getData() == null);
+        Assert.assertTrue(result.getStatus() == UserState.FAILED_AUTH);
     }
 
 
     @Test
     public void testCheckLoginPasswordFail() throws Exception {
-        Assert.assertTrue(ac.authenticate("", "").getStatus() == UserStatus.EMPTY_DATA);
+        Assert.assertTrue(ac.authenticate("", "").getStatus() == UserState.EMPTY_DATA);
     }
 
     @Test
     public void testDeleteSuccess() throws Exception {
         ac.register(TEST_USER, TEST_PASSWORD);
-        Assert.assertTrue(ac.delete(TEST_USER).getResult());
+        Assert.assertTrue(ac.delete(TEST_USER).isSuccess());
     }
 
     @Test
     public void testDeleteFail() throws Exception {
         ac.register(TEST_USER, TEST_PASSWORD);
-        Assert.assertTrue(ac.delete(TEST_USER.concat("1337")).getStatus() == UserStatus.NO_SUCH_USER_FOUND);
+        Assert.assertTrue(ac.delete(TEST_USER.concat("1337")) == UserState.NO_SUCH_USER_FOUND);
     }
 }

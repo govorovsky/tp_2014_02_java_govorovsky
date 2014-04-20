@@ -1,8 +1,8 @@
 package db;
 
-import com.sun.istack.internal.NotNull;
 import messageSystem.Abonent;
 import util.Result;
+import util.UserState;
 
 
 /**
@@ -10,9 +10,9 @@ import util.Result;
  */
 public interface AccountService extends Abonent, Runnable {
 
-    Result<Boolean> register(String username, String password);
+    UserState register(String username, String password);
 
-    Result<Boolean> delete(@NotNull String username);
+    UserState delete(String username);
 
     Result<Long> authenticate(String username, String password);
 
