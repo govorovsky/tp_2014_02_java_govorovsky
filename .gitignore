@@ -1,7 +1,8 @@
 *.class
+**/.hsqldb/*
+.idea/*
 
 # Package Files #
 *.jar
 *.war
 *.ear
-.idea/*
