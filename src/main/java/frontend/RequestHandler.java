@@ -86,9 +86,10 @@ public class RequestHandler {
     }
 
     public RequestHandler() {
+        Page waitingPage = new WaitingPage();
         pageMap.put(Pages.MAIN_PAGE, new MainPage());
-        pageMap.put(Pages.AUTH_PAGE, new WaitingPage());
-        pageMap.put(Pages.REG_PAGE, new WaitingPage());
+        pageMap.put(Pages.AUTH_PAGE, waitingPage);
+        pageMap.put(Pages.REG_PAGE, waitingPage);
         pageMap.put(Pages.TIMER_PAGE, new TimerPage());
         pageMap.put(Pages.QUIT_PAGE, new QuitPage());
     }
