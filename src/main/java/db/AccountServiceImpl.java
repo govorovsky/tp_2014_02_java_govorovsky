@@ -80,13 +80,13 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    @SuppressWarnings("InfiniteLoopStatement")
     public void run() {
-        while (true) {
+        while (!Thread.currentThread().isInterrupted()) {
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
+                break;
             }
             messageSystem.execForAbonent(this);
         }
