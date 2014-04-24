@@ -1,0 +1,8 @@
+<class type="resource.DBResource">
+    <host>localhost</host>
+    <port>3306</port>
+    <user>root</user>
+    <pass>qazxsw12</pass>
+    <db>gameserver</db>
+    <driver>com.mysql.jdbc.Driver</driver>
+</class>

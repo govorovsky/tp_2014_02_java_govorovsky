@@ -1,4 +1,4 @@
-package util;
+package util.vfs;
 
 import com.sun.istack.internal.NotNull;
 
@@ -17,10 +17,27 @@ public class VFSImpl implements VFS {
     private String root;
 
     public VFSImpl(@NotNull String root) throws FileNotFoundException {
-        this.root = root.isEmpty() ? "." : root;
-        if (!new File(root).exists()) throw new FileNotFoundException();
+        this.root = (root.isEmpty() ? System.getProperty("user.dir") : root);
+        if (!new File(this.root).exists()) throw new FileNotFoundException();
     }
 
+    public VFSImpl() throws FileNotFoundException {
+        this("");
+    }
+
+    public static void main(String[] args) throws FileNotFoundException {
+        VFS vfs = new VFSImpl();
+
+        Iterator<String> it = vfs.getIterator("/data");
+        while (it.hasNext()) {
+            System.out.println(it.next());
+        }
+    }
+
+    @Override
+    public String getFileName(String abspath) {
+        return new File(abspath).getName();
+    }
 
     @Override
     public boolean isExist(String path) {
@@ -29,7 +46,7 @@ public class VFSImpl implements VFS {
 
     @Override
     public boolean isDirectory(String path) {
-        return new File(root + path).isDirectory();
+        return new File(path).isDirectory();
     }
 
     @Override

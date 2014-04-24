@@ -1,0 +1,12 @@
+<class type="resource.UserStateResource">
+    <WAIT_USER_REG>Please, wait for registration</WAIT_USER_REG>
+    <WAIT_AUTH>Please, wait for authorization</WAIT_AUTH>
+    <AUTHORIZED>Successful authorization</AUTHORIZED>
+    <USER_ALREADY_EXISTS>User already exists</USER_ALREADY_EXISTS>
+    <FAILED_AUTH>Wrong username or password</FAILED_AUTH>
+    <NO_SUCH_USER_FOUND>No such user found</NO_SUCH_USER_FOUND>
+    <SQL_ERROR>DB seems down. Try again</SQL_ERROR>
+    <EMPTY_DATA>Fill all fields</EMPTY_DATA>
+    <OK>OK</OK>
+    <USER_ADDED>User was successfully added.</USER_ADDED>
+</class>

@@ -1,5 +1,8 @@
 package db;
 
+import resource.DBResource;
+import resource.ResourceSystem;
+
 import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.DriverManager;
@@ -9,15 +12,25 @@ import java.sql.DriverManager;
  */
 public class MysqlDatabase implements Database {
 
-    private static final String host = "localhost";
-    private static final int port = 3306;
-    private static final String db = "gameserver";
-    private static final String user = "root";
-    private static final String pass = "qazxsw12";
+    private static final String MYSQL_RES = "mysql.xml";
+
+    private final String host;
+    private final int port;
+    private final String db;
+    private final String user;
+    private final String pass;
+    private final String driver;
 
     private Connection connection;
 
     public MysqlDatabase() {
+        DBResource dbResource = (DBResource) ResourceSystem.getInstance().getResource(MYSQL_RES);
+        host = dbResource.getHost();
+        port = dbResource.getPort();
+        db = dbResource.getDb();
+        user = dbResource.getUser();
+        pass = dbResource.getPass();
+        driver = dbResource.getDriver();
     }
 
     @Override
@@ -26,7 +39,7 @@ public class MysqlDatabase implements Database {
             if (connection != null && !connection.isClosed()) {
                 return connection;
             } else {
-                DriverManager.registerDriver((Driver) Class.forName("com.mysql.jdbc.Driver").newInstance());
+                DriverManager.registerDriver((Driver) Class.forName(driver).newInstance());
                 connection = DriverManager.getConnection("jdbc:mysql://" + host + ":" + port + "/" + db + "?user=" + user + "&password=" + pass);
             }
         } catch (Exception e) {

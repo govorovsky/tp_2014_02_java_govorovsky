@@ -1,4 +1,4 @@
-package util;
+package util.vfs;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -12,6 +12,8 @@ public interface VFS {
     boolean isExist(String path);
 
     boolean isDirectory(String path);
+
+    String getFileName(String abspath);
 
     String getAbsolutePath(String file);
 

@@ -9,6 +9,7 @@ import junit.framework.Assert;
 import messageSystem.MessageSystem;
 import messageSystem.MsgLogin;
 import messageSystem.MsgRegister;
+import org.junit.AfterClass;
 import org.junit.Test;
 
 import javax.servlet.http.HttpServletRequest;
@@ -37,6 +38,7 @@ public class FunctionalMessageTest {
     private static final String USER = getRandomString(7);
     private static final String PASS = getRandomString(7);
     private static final String SSID = getRandomString(7);
+    private static Thread fe, as;
 
     public FunctionalMessageTest() throws Exception {
 
@@ -47,10 +49,16 @@ public class FunctionalMessageTest {
         messageSystem = new MessageSystem();
         frontend = new Frontend(messageSystem);
         accountService = new AccountServiceImpl(new HsqlDatabase(), messageSystem);
-        Thread fe = new Thread(frontend);
-        Thread as = new Thread(accountService);
+        fe = new Thread(frontend);
+        as = new Thread(accountService);
         fe.start();
         as.start();
+    }
+
+    @AfterClass
+    public static void teardown() {
+        fe.interrupt();
+        as.interrupt();
     }
 
     @Test

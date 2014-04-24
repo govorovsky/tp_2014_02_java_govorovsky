@@ -1,0 +1,7 @@
+<class type="resource.TemplatesResource">
+    <AUTH_TPL>auth.tpl</AUTH_TPL>
+    <REGISTER_TPL>register.tpl</REGISTER_TPL>
+    <MAIN_TPL>index.tpl</MAIN_TPL>
+    <TIMER_TPL>timer.tpl</TIMER_TPL>
+    <USER_TPL>user.tpl</USER_TPL>
+</class>

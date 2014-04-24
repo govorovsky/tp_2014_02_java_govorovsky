@@ -1,33 +1,89 @@
 package util;
 
+import resource.ResourceSystem;
+import resource.UserStateResource;
+
 /**
  * Created by Andrew Govorovsky on 15.03.14
  */
 public enum UserState {
 
+    USER_ADDED(true) {
+        @Override
+        public String getMessage() {
+            return USR.getUSER_ADDED();
+        }
+    },
+    WAIT_USER_REG(true) {
+        @Override
+        public String getMessage() {
+            return USR.getWAIT_USER_REG();
+        }
 
-    USER_ADDED(true, "User was added."),
-    WAIT_USER_REG(true, "Please, wait for registration"),
-    WAIT_AUTH(true, "Please, wait for authorization"),
-    AUTHORIZED(true, "Successful authorization"),
-    USER_ALREADY_EXISTS(false, "User already exists"),
-    FAILED_AUTH(false, "Wrong username or password"),
-    NO_SUCH_USER_FOUND(false, "No such user found"),
-    SQL_ERROR(false, "DB seems down. Try again"),
-    EMPTY_DATA(false, "Fill all fields"),
-    OK(true, "OK");
+    },
+    WAIT_AUTH(true) {
+        @Override
+        public String getMessage() {
+            return USR.getWAIT_AUTH();
+        }
 
-    private String message;
+    },
+    AUTHORIZED(true) {
+        @Override
+        public String getMessage() {
+            return USR.getAUTHORIZED();
+        }
+    },
+    USER_ALREADY_EXISTS(false) {
+        @Override
+        public String getMessage() {
+            return USR.getUSER_ALREADY_EXISTS();
+        }
+    },
+    FAILED_AUTH(false) {
+        @Override
+        public String getMessage() {
+            return USR.getFAILED_AUTH();
+        }
+
+    },
+    NO_SUCH_USER_FOUND(false) {
+        @Override
+        public String getMessage() {
+            return USR.getNO_SUCH_USER_FOUND();
+        }
+    },
+    SQL_ERROR(false) {
+        @Override
+        public String getMessage() {
+            return USR.getSQL_ERROR();
+        }
+    },
+    EMPTY_DATA(false) {
+        @Override
+        public String getMessage() {
+            return USR.getEMPTY_DATA();
+        }
+    },
+    OK(true) {
+        @Override
+        public String getMessage() {
+            return USR.getAUTHORIZED();
+        }
+    };
+
+    UserState(boolean isSuccess) {
+        this.isSuccess = isSuccess;
+    }
+
     private boolean isSuccess;
 
-    public String getMessage() {
-        return message;
-    }
+    private static final String RES = "userstate.xml";
+    private static final UserStateResource USR = (UserStateResource) ResourceSystem.getInstance().getResource(RES);
 
-    private UserState(boolean isSuccess, String message) {
-        this.isSuccess = isSuccess;
-        this.message = message;
-    }
+
+    abstract public String getMessage();
+
 
     public boolean isSuccess() {
         return isSuccess;

@@ -69,6 +69,7 @@
     <orderEntry type="library" name="Maven: org.seleniumhq.selenium:selenium-iphone-driver:2.4.0" level="project" />
     <orderEntry type="library" name="Maven: org.seleniumhq.selenium:selenium-support:2.4.0" level="project" />
     <orderEntry type="library" name="Maven: org.hsqldb:hsqldb:2.0.0" level="project" />
+    <orderEntry type="library" name="Maven: sax:sax:2.0.1" level="project" />
   </component>
 </module>
 

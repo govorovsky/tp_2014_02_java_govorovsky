@@ -40,6 +40,7 @@ public class GServer {
 
 
     private HandlerList initHandlers() {
+
         MessageSystem messageSystem = new MessageSystem();
         Frontend frontend = new Frontend(messageSystem);
         AccountService accountService1 = new AccountServiceImpl(new MysqlDatabase(), messageSystem);

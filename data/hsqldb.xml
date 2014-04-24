@@ -1,0 +1,6 @@
+<class type="resource.DBResource">
+    <user>SA</user>
+    <pass></pass>
+    <db>hsqldb/testdb</db>
+    <driver>org.hsqldb.jdbc.JDBCDriver</driver>
+</class>

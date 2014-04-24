@@ -1,0 +1,7 @@
+<class type="resource.URLResource">
+    <AUTH_PAGE>/auth</AUTH_PAGE>
+    <REG_PAGE>/reg</REG_PAGE>
+    <MAIN_PAGE>/index</MAIN_PAGE>
+    <TIMER_PAGE>/timer</TIMER_PAGE>
+    <QUIT_PAGE>/quit</QUIT_PAGE>
+</class>
