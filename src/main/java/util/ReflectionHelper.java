@@ -25,7 +25,10 @@ public class ReflectionHelper {
                 field.set(obj, value);
             } else if (field.getType().equals(int.class)) {
                 field.set(obj, Integer.decode(value));
+            } else if (field.getType().equals(char.class)) {
+                field.set(obj, value.charAt(0));
             }
+            field.setAccessible(false);
         } catch (NoSuchFieldException | IllegalAccessException e) {
             e.printStackTrace();
         }

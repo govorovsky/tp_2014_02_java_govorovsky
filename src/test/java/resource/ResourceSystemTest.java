@@ -14,6 +14,6 @@ public class ResourceSystemTest {
 
     @Test
     public void testGetResource() throws Exception {
-
+        Assert.assertNotNull(ResourceSystem.getInstance().getResource("mysql.xml"));
     }
 }

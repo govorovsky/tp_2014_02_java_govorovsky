@@ -1,0 +1,5 @@
+<class type="resource.TestResource">
+    <testStr>Test</testStr>
+    <testInt>123</testInt>
+    <testChr>T</testChr>
+</class>
