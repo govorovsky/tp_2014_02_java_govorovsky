@@ -3,8 +3,9 @@ package resource;
 /**
  * Created by Andrew Govorovsky on 24.04.14
  */
+@SuppressWarnings("UnusedDeclaration")
 public class URLResource implements Resource {
-    public String AUTH_PAGE;
+    private String AUTH_PAGE;
     private String REG_PAGE;
     private String MAIN_PAGE;
     private String TIMER_PAGE;

@@ -3,6 +3,7 @@ package resource;
 /**
  * Created by Andrew Govorovsky on 24.04.14
  */
+@SuppressWarnings("UnusedDeclaration")
 public class UserStateResource implements Resource {
     private String USER_ADDED;
     private String WAIT_USER_REG;

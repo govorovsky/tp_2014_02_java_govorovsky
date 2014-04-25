@@ -3,6 +3,7 @@ package resource;
 /**
  * Created by Andrew Govorovsky on 24.04.14
  */
+@SuppressWarnings("UnusedDeclaration")
 public class TemplatesResource implements Resource {
 
     public String AUTH_TPL;

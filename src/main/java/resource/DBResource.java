@@ -3,6 +3,7 @@ package resource;
 /**
  * Created by Andrew Govorovsky on 23.04.14
  */
+@SuppressWarnings("UnusedDeclaration")
 public class DBResource implements Resource {
     private String host;
     private int port;
